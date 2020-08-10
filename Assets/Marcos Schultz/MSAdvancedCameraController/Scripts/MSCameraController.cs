@@ -684,7 +684,7 @@ public class MSCameraController : MonoBehaviour {
 						_minDistance = Mathf.Clamp (distanceFromOrbitalCamera [index], _minDistance * 0.5f, CameraSettings.OrbitalThatFollows.maxDistance);
 					}
 				}
-				xOrbit [index] += movXInput * (CameraSettings.OrbitalThatFollows.sensibility * distanceFromOrbitalCamera [index] * (CameraSettings.OrbitalThatFollows.speedYAxis * 10.0f)) / (distanceFromOrbitalCamera [index] * 0.5f);
+				xOrbit [index] += movXInput * (CameraSettings.OrbitalThatFollows.sensibility * distanceFromOrbitalCamera [index])  / (distanceFromOrbitalCamera [index] * 0.5f);
 				yOrbit [index] -= movYInput * CameraSettings.OrbitalThatFollows.sensibility * (CameraSettings.OrbitalThatFollows.speedYAxis * 10.0f);
 				yOrbit [index] = ClampAngle (yOrbit [index], CameraSettings.OrbitalThatFollows.minAngleY, CameraSettings.OrbitalThatFollows.maxAngleY);
 				Quaternion quaterToEuler = Quaternion.Euler (yOrbit [index], xOrbit [index], 0);

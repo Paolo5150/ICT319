@@ -5,7 +5,7 @@ using UnityEngine.AI;
 
 public class Player : MonoBehaviour
 {
-
+    
     private static Player _instance;
 
     public static Player Instance
@@ -25,32 +25,68 @@ public class Player : MonoBehaviour
             _instance = this;
         }
     }
+    public float moveSpeed = 3.0f;
+    public float fireRate = 0.1f;
 
-    public Navigator navigator;
-
-   
+    int raycastPlane;
+    Rifle rifle;
 
     // Start is called before the first frame update
     public void Init()
     {
-        navigator = GetComponent<Navigator>();
+        raycastPlane = LayerMask.GetMask("RaycastPlane");
+        rifle = GetComponentInChildren<Rifle>();
+    }
 
-        navigator.SetOnReachedEndTileListener(() => {
+    void Move()
+    {
+        RaycastHit mouseHit;
+        Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-            Camera.main.GetComponent<CameraRay>().Clear();
-            GameManager.Instance.mapLoad = GameManager.Instance.mapLoad == "1" ? "2" : "1";
-            GameManager.Instance.LoadMap();
+        if (Physics.Raycast(r, out mouseHit, 200, raycastPlane))
+        {
+            transform.LookAt(new Vector3(mouseHit.point.x, transform.position.y, mouseHit.point.z));
+        }
 
-        });
+        if (Input.GetKey(KeyCode.W))
+            transform.position += Vector3.forward * moveSpeed * Time.deltaTime;
+
+        if (Input.GetKey(KeyCode.S))
+            transform.position -= Vector3.forward * moveSpeed * Time.deltaTime;
+
+        if (Input.GetKey(KeyCode.A))
+            transform.position -= Vector3.right * moveSpeed * Time.deltaTime;
+
+        if (Input.GetKey(KeyCode.D))
+            transform.position += Vector3.right * moveSpeed * Time.deltaTime;
+    }
+
+    void Shoot()
+    {
+        if (Input.GetMouseButton(0))
+        {
+            RaycastHit[] hits = rifle.Shoot(fireRate);
+            if (hits != null)
+            {
+                foreach (RaycastHit hit in hits)
+                {
+                    Debug.Log("Shot " + hit.collider.gameObject.name);
+                }
+            }
+
+        }
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        Move();
+        Shoot();
+       
     }
-        
-   
 
-   
+
+
+
 }

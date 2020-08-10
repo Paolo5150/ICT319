@@ -10,7 +10,7 @@ using UnityEngine;
 
 public class MapEditor : EditorWindow
 {
-   
+    public static bool active = true;
     private static MapEditor instance;
     public static MapEditor Instance
     {
@@ -26,7 +26,6 @@ public class MapEditor : EditorWindow
     {
         Tile,
         Start_Tile,
-        End_Tile,
         Enemy
     }
     private bool loadedClicked = false;
@@ -35,7 +34,6 @@ public class MapEditor : EditorWindow
     private int height;
 
     private GameObject startTile;
-    private GameObject endTile;
     private GameObject currentTile;
     private int objectType = 0;
     private GameObject[,] mapArray;
@@ -75,6 +73,7 @@ public class MapEditor : EditorWindow
     // Called to draw the MapEditor windows.
     private void OnGUI()
     {
+        active = true;
         EditorGUILayout.BeginHorizontal();
         width = EditorGUILayout.IntField("Width", width);
         height = EditorGUILayout.IntField("Height", height);
@@ -151,6 +150,8 @@ public class MapEditor : EditorWindow
     // Does the rendering of the map editor in the scene view.
     private void OnSceneGUI(SceneView sceneView)
     {
+        if (!active) return;
+
         Ray r = HandleUtility.GUIPointToWorldRay(Event.current.mousePosition);
         RaycastHit hit;
         int floorTileLayer = LayerMask.GetMask("FloorTile");
@@ -171,6 +172,11 @@ public class MapEditor : EditorWindow
                     ghost.transform.position = new Vector3(currentTile.transform.position.x, 0.6f, currentTile.transform.position.z);
                 else
                     ghost.transform.position = new Vector3(-10000.0f, -10000.0f, -10000.0f); // just off screen
+
+                if(Event.current.type == EventType.MouseDown && Event.current.button == 2)
+                {
+                    ghost.transform.Rotate(Vector3.up, 90.0f);
+                }
 
             }
             else
@@ -193,10 +199,7 @@ public class MapEditor : EditorWindow
             DrawTileBorders(currentTile.transform.position, Color.blue);
         if(startTile)
             DrawTileBorders(startTile.transform.position, Color.green);
-        if (endTile)
-            DrawTileBorders(endTile.transform.position, Color.red);
-
-        
+       
 
         //On click
         if (Event.current.type == EventType.MouseDown && currentTile != null)
@@ -206,16 +209,12 @@ public class MapEditor : EditorWindow
             if (Event.current.button == 0)
             {
                 leftDown = true;
-                if (currentTile != null)
+                if (currentTile != null && currentTile.GetComponent<FloorTile>().IsWalkable)
                 {
                     if (objectType == (int)PlacebleObjects.Start_Tile)
                     {                     
 
                         startTile = currentTile;
-                    }
-                    else if (objectType == (int)PlacebleObjects.End_Tile)
-                    {                      
-                        endTile = currentTile;
                     }
                     else if (objectType == (int)PlacebleObjects.Enemy)
                     {
@@ -227,14 +226,26 @@ public class MapEditor : EditorWindow
                         bool found = objectsArray["Enemy"].Exists((Vector3 v) => { return v.x == pos.x && v.z == pos.z; });
                         if (!found)
                         {
-                            GameObject g = (GameObject)Instantiate(Resources.Load("Prefab/Enemy"), new Vector3(currentTile.transform.position.x, 0.6f, currentTile.transform.position.z), Quaternion.identity);
-                            int count = GameObject.FindGameObjectsWithTag("Enemy").Count();
-                            g.name = "Enemy " + count;
-                            g.GetComponent<Enemy>().patrolSO = ScriptableObject.CreateInstance<EnemyPatrolSO>();
-                            g.GetComponent<Enemy>().patrolSO.patrolPoint.Add(currentTile.transform.position);
+                            GameObject g = (GameObject)Instantiate(Resources.Load("Prefab/Enemy"), new Vector3(currentTile.transform.position.x, 0.6f, currentTile.transform.position.z), ghost.transform.rotation);
+                            int count = GameObject.FindGameObjectsWithTag("Enemy").Count() - 1;
                             objectsArray["Enemy"].Add(pos);
                             g.transform.SetParent(GameObject.Find("Enemies").transform);
-                            
+
+                            if (!Directory.Exists("Assets/Resources/Maps/Level_" + mapSaveName + "/Enemies"))
+                                Directory.CreateDirectory("Assets/Resources/Maps/Level_" + mapSaveName + "/Enemies");
+
+                            /*g.GetComponent<Enemy>().patrolSO = ScriptableObject.CreateInstance<EnemyPatrolSO>();
+                            g.GetComponent<Enemy>().patrolSO.patrolPoint = new List<Vector3>();
+                            g.GetComponent<Enemy>().patrolSO.times = new List<float>();
+                            g.GetComponent<Enemy>().patrolSO.rotations = new List<float>();
+                            g.GetComponent<Enemy>().patrolSO.patrolPoint.Add(currentTile.transform.position);
+                            g.GetComponent<Enemy>().patrolSO.times.Add(3.0f);
+                            g.GetComponent<Enemy>().patrolSO.rotations.Add(ghost.transform.rotation.eulerAngles.y);
+
+                            AssetDatabase.CreateAsset(g.GetComponent<Enemy>().patrolSO, "Assets/Resources/Maps/Level_" + mapSaveName + "/Enemies/Enemy_" + GUID.Generate() + ".asset");
+                            EditorUtility.SetDirty(g.GetComponent<Enemy>().patrolSO);*/
+                            AssetDatabase.SaveAssets();
+
                         }
 
                     }
@@ -288,7 +299,12 @@ public class MapEditor : EditorWindow
                         objectsArray["Enemy"].Remove(pos);
                         var enemy = GameObject.FindGameObjectsWithTag("Enemy").Where((GameObject g)=> { return g.transform.position.x == pos.x && g.transform.position.z == pos.z; });
                         foreach (GameObject e in enemy)
+                        {
+                            string path = AssetDatabase.GetAssetPath(e.GetComponent<Enemy>().patrolSO);
+                            File.Delete(path);
                             UnityEngine.Object.DestroyImmediate(e);
+                            AssetDatabase.Refresh();
+                        }
                         
                     }
 
@@ -322,9 +338,9 @@ public class MapEditor : EditorWindow
     private void SaveMap()
     {
 
-        if (startTile == null || endTile == null)
+        if (startTile == null)
         {
-            Debug.LogError("Start tile and end tile required to save map1!");
+            Debug.LogError("Start tile  required to save map1!");
             return;
         }
 
@@ -343,7 +359,6 @@ public class MapEditor : EditorWindow
             AssetDatabase.CreateAsset(mapso, mapName);
         }
 
-        mapso.endTile = endTile.transform.position;
         mapso.startTile = startTile.transform.position;
         mapso.width = width;
         mapso.height = height;
@@ -358,21 +373,47 @@ public class MapEditor : EditorWindow
 
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
 
-        /* if(enemies.Length > 0)
+        mapso.enemyCount = enemies.Length;
+
+       /* if(!Directory.Exists(folderPath + "/Enemies"))
+            Directory.CreateDirectory(folderPath + "/Enemies");
+
+        List<string> savedFiles = new List<string>();
+         if (enemies.Length > 0)
          {
-             mapso.enemies = new EnemyPatrolSO[enemies.Length];
-             int counter = 0;
+            int counter = 0;
              foreach(GameObject go in enemies)
              {
-                 mapso.enemies[counter] = ScriptableObject.CreateInstance<EnemyPatrolSO>();
-                 mapso.enemies[counter].patrolPoint = new Vector3[go.GetComponent<Enemy>().patrolSO.patrolPoint.Length];
-                 for(int i=0; i< go.GetComponent<Enemy>().patrolSO.patrolPoint.Length;i++)
-                 {
-                     mapso.enemies[counter].patrolPoint[i] = go.GetComponent<Enemy>().patrolSO.patrolPoint[i];
-                 }
-                 counter++;
-             }
-         }*/
+                //Check for existing SO
+                EnemyPatrolSO enemySO = AssetDatabase.LoadAssetAtPath<EnemyPatrolSO>(folderPath + "/Enemies/" + "Enemy_" + counter + ".asset");
+                if (enemySO == null)
+                {
+                    enemySO = ScriptableObject.CreateInstance<EnemyPatrolSO>();
+                    enemySO.patrolPoint = new List<Vector3>();
+                    enemySO.times = new List<float>();
+                    enemySO.patrolPoint.Add(new Vector3(go.transform.position.x, 0.0f, go.transform.position.z));
+                    enemySO.times.Add(3);
+                    AssetDatabase.CreateAsset(enemySO, folderPath + "/Enemies/" + "Enemy_" + counter + ".asset");
+                }
+                savedFiles.Add(enemySO.name);
+                EditorUtility.SetDirty(enemySO);
+                counter++;
+                go.GetComponent<Enemy>().patrolSO = enemySO;
+             }          
+        }
+
+        //Get all files in enemy folder
+        string[] files = Directory.GetFiles(folderPath + "/Enemies");
+        foreach (string file in files)
+        {
+            if (!savedFiles.Contains<string>(file))
+            {
+                if (File.Exists(file))
+                    File.Delete(file);
+            }
+        }*/
+
+
         EditorUtility.SetDirty(mapso);
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
@@ -381,6 +422,8 @@ public class MapEditor : EditorWindow
     private void LoadMap()
     {
         mapSaveName = loadMap.name;
+        objectsArray.Clear();
+
 
         string folderName = "Level_" + mapSaveName;
         string folderPath = "Assets/Resources/Maps/" + folderName;
@@ -394,16 +437,24 @@ public class MapEditor : EditorWindow
             mapArray[x, z] = tile;
         });       
         startTile = mapArray[(int)loadMap.startTile.x, (int)loadMap.startTile.z].gameObject;
-        endTile = mapArray[(int)loadMap.endTile.x, (int)loadMap.endTile.z].gameObject;
-        
+
+        if (!objectsArray.ContainsKey("Enemy"))
+            objectsArray.Add("Enemy", new List<Vector3>());
+
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        foreach (GameObject go in enemies)
+        {
+            objectsArray["Enemy"].Add(go.transform.position);
+        }
+
     }
 
-  
+
 
     private void GenerateMap()
     {
         MapLoader.RegenerateParents();
-
+        objectsArray.Clear();
         mapSaveName = "";
         loadMap = null;
         mapArray = new GameObject[width, height];

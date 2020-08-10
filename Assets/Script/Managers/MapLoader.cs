@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 
@@ -21,11 +22,25 @@ public class MapLoader
                 GameObject tile = (GameObject)GameObject.Instantiate(Resources.Load("Prefab/FloorTile"), new Vector3(x, 0, z), Quaternion.Euler(new Vector3(90, 0, 0)));
                 tile.transform.SetParent(floorParent.transform);
                 tile.GetComponent<FloorTile>().IsWalkable = loadMap.map[z * loadMap.width + x];
+
                 onTileSpawn?.Invoke(tile, x, z);
             }
         }
-    }
 
+        //Enemies
+        var enemyFiles = Resources.LoadAll<EnemyPatrolSO>("Maps/Level_" + loadMap.name + "/Enemies");
+        for(int i=0; i< enemyFiles.Length; i++)
+        {
+            if (enemyFiles[i].name.Contains("meta")) continue;
+
+            Vector3 first = enemyFiles[i].patrolPoint[0];
+            GameObject enemy = (GameObject)GameObject.Instantiate(Resources.Load("Prefab/Enemy"), first + Vector3.up * 0.6f, Quaternion.Euler(0,enemyFiles[i].rotations[0],0));
+            enemy.name = "Enemy_" + i;
+            enemy.transform.SetParent(enemyParent.transform);
+            //enemy.GetComponent<Enemy>().patrolSO = enemyFiles[i];
+        }
+    }
+    // Used by GenerateMap
     public static void SpawnMap(int width, int height, Action<GameObject, int, int> onTileSpawn = null)
     {
 

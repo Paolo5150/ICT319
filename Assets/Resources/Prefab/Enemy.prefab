@@ -14,7 +14,9 @@ GameObject:
   - component: {fileID: 5042338848103050985}
   - component: {fileID: 94381426188665812}
   - component: {fileID: 2130746080309594028}
-  m_Layer: 0
+  - component: {fileID: -4507948862747871148}
+  - component: {fileID: 5173547965724853861}
+  m_Layer: 11
   m_Name: Enemy
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -94,7 +96,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.2
-  m_Speed: 2
+  m_Speed: 1
   m_Acceleration: 50
   avoidancePriority: 1
   m_AngularSpeed: 500
@@ -103,7 +105,7 @@ NavMeshAgent:
   m_AutoBraking: 1
   m_AutoRepath: 1
   m_Height: 2
-  m_BaseOffset: 1
+  m_BaseOffset: 0.75
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 1
 --- !u!114 &94381426188665812
@@ -119,6 +121,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   patrolSO: {fileID: 0}
+  navigator: {fileID: 0}
 --- !u!114 &2130746080309594028
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -132,6 +135,36 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   navAgent: {fileID: 0}
+  walkSpeed: 1.4
+  runSpeed: 2
+--- !u!114 &-4507948862747871148
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5042338848103050990}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e0213c18d1dd3924f831a198cba79a83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  viewRange: 7
+  FOV: 120
+--- !u!136 &5173547965724853861
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5042338848103050990}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.5
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &5042338848666831687
 GameObject:
   m_ObjectHideFlags: 0
@@ -144,7 +177,7 @@ GameObject:
   - component: {fileID: 5042338848666831683}
   - component: {fileID: 5042338848666831680}
   - component: {fileID: 5042338848666831681}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Glasses
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -232,9 +265,21 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 5042338848103050986}
     m_Modifications:
+    - target: {fileID: 100000, guid: c21fd8055cc8cdc4da37c1254275f767, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 100002, guid: c21fd8055cc8cdc4da37c1254275f767, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 100004, guid: c21fd8055cc8cdc4da37c1254275f767, type: 3}
       propertyPath: m_Name
       value: rifle
+      objectReference: {fileID: 0}
+    - target: {fileID: 100004, guid: c21fd8055cc8cdc4da37c1254275f767, type: 3}
+      propertyPath: m_Layer
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 400004, guid: c21fd8055cc8cdc4da37c1254275f767, type: 3}
       propertyPath: m_LocalPosition.x

@@ -4,8 +4,10 @@ using UnityEngine;
 
 public class CameraRay : MonoBehaviour
 {
+    private bool enableTileSelection;
+    public bool operational = true;
+
     public float wallAlpha;
-    public bool enableTileSelection;
     private Ray ray;
     private RaycastHit[] wallHit;
     private int wallLayer;
@@ -17,7 +19,28 @@ public class CameraRay : MonoBehaviour
     GameObject lastTile;
     GameObject selectedTile;
 
-    MSCameraController cameraController;
+    public MSCameraController cameraController;
+
+    private static CameraRay _instance;
+    public static CameraRay Instance
+    {
+        get { return _instance; }
+    }
+
+
+    private void Awake()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(this.gameObject);
+        }
+        else
+        {
+            _instance = this;
+        }
+    }
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -40,6 +63,7 @@ public class CameraRay : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!operational) return;
         ray.origin = transform.position;
         ray.direction = Player.Instance.transform.position - Vector3.up / 2.0f - ray.origin;
 
@@ -106,12 +130,13 @@ public class CameraRay : MonoBehaviour
             {
                 if (selectedTile != null && enableTileSelection)
                 {
-                    float speed = 2.0f;
-                    if (pressTime > 1.0f)
+                    if (pressTime > 0.2f)
                     {
-                        speed = 4.0f;
+                        Player.Instance.GetComponent<Navigator>().RunSpeed();
                     }
-                    Player.Instance.GetComponent<Navigator>().SetSpeed(speed);
+                    else
+                    Player.Instance.GetComponent<Navigator>().WalkSpeed();
+
                     Player.Instance.GetComponent<Navigator>().Go(selectedTile.transform.position);
                 }
                 cameraController.enabled = true;

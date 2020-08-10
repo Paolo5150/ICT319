@@ -14,10 +14,20 @@ public class FloorTile : MonoBehaviour
         }
         set
         {
-            if(value)
+            if (value)
+            {
                 transform.Find("Wall").gameObject.GetComponent<MeshRenderer>().enabled = false;
+                transform.Find("Wall").gameObject.GetComponent<BoxCollider>().enabled = false;
+
+
+            }
             else
+            {
                 transform.Find("Wall").gameObject.GetComponent<MeshRenderer>().enabled = true;
+                transform.Find("Wall").gameObject.GetComponent<BoxCollider>().enabled = true;
+            }
+                
+
 
             isWalkable = value;
 

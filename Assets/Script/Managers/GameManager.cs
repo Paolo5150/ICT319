@@ -46,21 +46,7 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         
-    }
-    
-    IEnumerator TestLoading()
-    {
-        for(int i=0; i< 10; i++)
-        {
-            if (mapLoad.Equals("2"))
-                mapLoad = "1";
-            else
-                mapLoad = "2";
-
-            LoadMap();
-            yield return new WaitForSeconds(5);
-        }
-    }
+    } 
 
     
 
@@ -70,25 +56,15 @@ public class GameManager : MonoBehaviour
         currentMap = (MapSO)Resources.Load("Maps\\Level_" + mapLoad + "\\" + mapLoad);
         if(currentMap != null)
         {
-            MapLoader.SpawnMap(currentMap);
-
-            Player.Instance.transform.position = new Vector3(currentMap.startTile.x, 0.6f, currentMap.startTile.z);
-            endTileVec2Pos = new Vector2(currentMap.endTile.x, currentMap.endTile.z);
-            navMeshSurface.BuildNavMesh();
-        }
-    }
-
-    public void LoadMap(string value)
-    {
-        currentMap = (MapSO)Resources.Load("Maps\\Level_" + value + "\\" + mapLoad);
-        if (currentMap != null)
-        {
-            MapLoader.SpawnMap(currentMap);
+            MapLoader.SpawnMap(currentMap,(GameObject tile, int x, int z)=> {
+                if (x == currentMap.endTile.x && z == currentMap.endTile.z)
+                    tile.GetComponent<MeshRenderer>().material.color = Color.green;
+            });
 
             GameObject player = GameObject.FindGameObjectWithTag("Player");
             player.transform.position = new Vector3(currentMap.startTile.x, 0.6f, currentMap.startTile.z);
-            endTileVec2Pos = new Vector2(currentMap.endTile.x, currentMap.endTile.z);
-            navMeshSurface.BuildNavMesh();
+           // endTileVec2Pos = new Vector2(currentMap.endTile.x, currentMap.endTile.z);
+           // navMeshSurface.BuildNavMesh();
         }
     }
 

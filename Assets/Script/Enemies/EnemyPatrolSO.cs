@@ -9,4 +9,7 @@ public class EnemyPatrolSO : ScriptableObject
 
     [SerializeField]
     public List<float> times;
+
+    [SerializeField]
+    public List<float> rotations;
 }

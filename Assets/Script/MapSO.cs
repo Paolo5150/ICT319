@@ -20,6 +20,6 @@ public class MapSO : ScriptableObject
     public bool[] map;
 
     [SerializeField]
-    public List<EnemyPatrolSO> enemiesPatrol;
+    public int enemyCount;
 
 }

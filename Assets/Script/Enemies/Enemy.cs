@@ -4,18 +4,18 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
+
     public EnemyPatrolSO patrolSO;
+    [HideInInspector]
+    public Navigator navigator;
+
 
     // Start is called before the first frame update
-    void Start()
+    public virtual void Start()
     {
-        
+        navigator = GetComponent<Navigator>();
+        navigator.Init();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 
 }
