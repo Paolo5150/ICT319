@@ -92,7 +92,7 @@ public class CameraRay : MonoBehaviour
             lastHit.Clear();
         }
 
-        if(true)
+        if(false)
         {
             if (Input.GetMouseButton(0) && enableTileSelection)
             {
@@ -128,21 +128,21 @@ public class CameraRay : MonoBehaviour
             }
             else if (Input.GetMouseButtonUp(0))
             {
-                if (selectedTile != null && enableTileSelection)
+                /*if (selectedTile != null && enableTileSelection)
                 {
                     if (pressTime > 0.2f)
                     {
-                        Player.Instance.GetComponent<Navigator>().RunSpeed();
+                        Player.Instance.GetComponent<Navigator>().UseRunSpeed();
                     }
                     else
-                    Player.Instance.GetComponent<Navigator>().WalkSpeed();
+                    Player.Instance.GetComponent<Navigator>().UseWalkSpeed();
 
                     Player.Instance.GetComponent<Navigator>().Go(selectedTile.transform.position);
                 }
                 cameraController.enabled = true;
 
                 enableTileSelection = true;
-                pressTime = 0.0f;
+                pressTime = 0.0f;*/
             }
         }       
 

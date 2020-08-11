@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviour, IShootable
 {
     
     private static Player _instance;
@@ -27,6 +27,9 @@ public class Player : MonoBehaviour
     }
     public float moveSpeed = 3.0f;
     public float fireRate = 0.1f;
+    public float damageGiven = 2;
+
+    Health health;
 
     int raycastPlane;
     Rifle rifle;
@@ -36,6 +39,7 @@ public class Player : MonoBehaviour
     {
         raycastPlane = LayerMask.GetMask("RaycastPlane");
         rifle = GetComponentInChildren<Rifle>();
+        health = new Health();
     }
 
     void Move()
@@ -65,14 +69,8 @@ public class Player : MonoBehaviour
     {
         if (Input.GetMouseButton(0))
         {
-            RaycastHit[] hits = rifle.Shoot(fireRate);
-            if (hits != null)
-            {
-                foreach (RaycastHit hit in hits)
-                {
-                    Debug.Log("Shot " + hit.collider.gameObject.name);
-                }
-            }
+            RaycastHit[] hits = rifle.Shoot(fireRate, this.gameObject, damageGiven);
+           
 
         }
 
@@ -86,7 +84,12 @@ public class Player : MonoBehaviour
        
     }
 
-
-
-
+    public void OnGetShot(GameObject from, float damage)
+    {
+        health.Add(damage);
+        if(health.IsDead())
+        {
+            //GameOver
+        }
+    }
 }

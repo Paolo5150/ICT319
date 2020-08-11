@@ -71,8 +71,7 @@ public class EnemySight : MonoBehaviour
                 {
                     if (hit.transform.gameObject.name.Equals("Player"))
                     {
-                        if (onPlayerSighted != null)
-                            onPlayerSighted();
+                        inSight = true;
                     }
                 }
             }

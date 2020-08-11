@@ -4,6 +4,21 @@ using UnityEngine;
 
 public abstract class Personality
 {
+    public StateMachine<EnemyState> stateMachine;
+    public Personality(Enemy e)
+    {
+        enemyObj = e;
+    }
+    public virtual void Init()
+    {
+        stateMachine = new StateMachine<EnemyState>();
+    }
+    public virtual void Update()
+    {
+        stateMachine.Update();
+    }
 
+
+    public Enemy enemyObj;
 
 }

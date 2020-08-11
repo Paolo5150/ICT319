@@ -25,6 +25,7 @@ public class FloorTile : MonoBehaviour
             {
                 transform.Find("Wall").gameObject.GetComponent<MeshRenderer>().enabled = true;
                 transform.Find("Wall").gameObject.GetComponent<BoxCollider>().enabled = true;
+                transform.Find("Wall").gameObject.GetComponent<BoxCollider>().isTrigger = false;
             }
                 
 

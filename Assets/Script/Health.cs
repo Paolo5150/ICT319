@@ -9,7 +9,7 @@ public class Health
 
     public void Add(float h)
     {
-        health -= h;
+        health += h;
     }
 
     public float GetHealth()

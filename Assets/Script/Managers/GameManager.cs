@@ -64,7 +64,7 @@ public class GameManager : MonoBehaviour
             GameObject player = GameObject.FindGameObjectWithTag("Player");
             player.transform.position = new Vector3(currentMap.startTile.x, 0.6f, currentMap.startTile.z);
            // endTileVec2Pos = new Vector2(currentMap.endTile.x, currentMap.endTile.z);
-           // navMeshSurface.BuildNavMesh();
+            navMeshSurface.BuildNavMesh();
         }
     }
 

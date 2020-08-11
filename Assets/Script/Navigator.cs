@@ -42,13 +42,13 @@ public class Navigator : MonoBehaviour
         
     }
 
-    public void WalkSpeed()
+    public void UseWalkSpeed()
     {
         currentSpeed = walkSpeed;
 
     }
 
-    public void RunSpeed()
+    public void UseRunSpeed()
     {
         currentSpeed = runSpeed;
 
@@ -57,9 +57,9 @@ public class Navigator : MonoBehaviour
     public void Stop()
     {
         StopAllCoroutines();
-        currentSpeed = 0;
         doneChecking = true;
         navAgent.enabled = false;
+        isMoving = false;
     }
 
     IEnumerator Move(Vector3[] path)
