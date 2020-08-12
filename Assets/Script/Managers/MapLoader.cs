@@ -28,7 +28,7 @@ public class MapLoader
         }
 
         //Enemies
-        var enemyFiles = Resources.LoadAll<EnemyPatrolSO>("Maps/Level_" + loadMap.name + "/Enemies");
+       /* var enemyFiles = Resources.LoadAll<EnemyPatrolSO>("Maps/Level_" + loadMap.name + "/Enemies");
         for(int i=0; i< enemyFiles.Length; i++)
         {
             if (enemyFiles[i].name.Contains("meta")) continue;
@@ -37,8 +37,8 @@ public class MapLoader
             GameObject enemy = (GameObject)GameObject.Instantiate(Resources.Load("Prefab/Enemy"), first + Vector3.up * 0.6f, Quaternion.Euler(0,enemyFiles[i].rotations[0],0));
             enemy.name = "Enemy_" + i;
             enemy.transform.SetParent(enemyParent.transform);
-            //enemy.GetComponent<Enemy>().patrolSO = enemyFiles[i];
-        }
+            enemy.GetComponent<Enemy>().patrolSO = enemyFiles[i];
+        }*/
     }
     // Used by GenerateMap
     public static void SpawnMap(int width, int height, Action<GameObject, int, int> onTileSpawn = null)

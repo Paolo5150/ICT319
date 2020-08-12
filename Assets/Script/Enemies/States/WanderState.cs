@@ -50,8 +50,12 @@ public class WanderState : EnemyState
     }
     public override void OnExit()
     {
-        personalityObj.enemyObj.StopAllCoroutines();
+        personalityObj.enemyObj.StopCoroutine(LookForRandomSpot());
         personalityObj.enemyObj.navigator.Stop();
+        personalityObj.enemyObj.navigator.SetOnDestinationReachedListener(() =>
+        {
+
+        });
 
         Debug.Log("OnExit wander");
 

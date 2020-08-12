@@ -8,6 +8,9 @@ public class Beserk : Personality
     ShootState shootState;
     InvestigateState investigationState;
 
+    //Test
+
+
     float shootRate = 0.1f;
 
     public Beserk(Enemy e) : base(e)
@@ -54,5 +57,26 @@ public class Beserk : Personality
     public override void Update()
     {
         base.Update();
+    }
+
+    IEnumerator GoInvestigateNoise(Vector3 shotPosition)
+    {
+        enemyObj.transform.LookAt(shotPosition);
+        yield return new WaitForSeconds(3);
+        investigationState.investigationPoint = shotPosition;
+        stateMachine.SetState(investigationState);
+    }
+
+    public override void OnPlayeShotFired(Vector3 shotPosition)
+    {
+        float toPlayer = (shotPosition - enemyObj.transform.position).magnitude;
+
+        if(toPlayer < enemyObj.enemySight.hearRange)
+        {
+            enemyObj.navigator.Stop();
+            enemyObj.StopAllCoroutines();
+            enemyObj.StartCoroutine(GoInvestigateNoise(shotPosition));
+
+        }
     }
 }

@@ -18,6 +18,9 @@ public abstract class Personality
         stateMachine.Update();
     }
 
+    public virtual void OnPlayeShotFired(Vector3 shotPosition)
+    { }
+
 
     public Enemy enemyObj;
 

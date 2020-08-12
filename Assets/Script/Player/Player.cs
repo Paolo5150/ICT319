@@ -5,7 +5,9 @@ using UnityEngine.AI;
 
 public class Player : MonoBehaviour, IShootable
 {
-    
+    public delegate void FireAction();
+    public static event FireAction OnShotFired;
+
     private static Player _instance;
 
     public static Player Instance
@@ -69,6 +71,7 @@ public class Player : MonoBehaviour, IShootable
     {
         if (Input.GetMouseButton(0))
         {
+            OnShotFired();
             RaycastHit[] hits = rifle.Shoot(fireRate, this.gameObject, damageGiven);
            
 

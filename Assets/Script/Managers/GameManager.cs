@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
@@ -17,6 +18,7 @@ public class GameManager : MonoBehaviour
     private GameObject mapParent;
     private Vector2 endTileVec2Pos;
 
+    private List<Vector3> obstacles;
     private void Awake()
     {
         if (_instance != null && _instance != this)
@@ -29,6 +31,11 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public List<Vector3> GetObstacles()
+    {
+        return obstacles;
+    }
+
     public Vector2 GetCurrentMapEndTilePos()
     {
         return endTileVec2Pos;
@@ -37,6 +44,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         Player.Instance.Init();
+        obstacles = new List<Vector3>();
         navMeshSurface = GetComponent<NavMeshSurface>();
         LoadMap();
 
@@ -57,6 +65,14 @@ public class GameManager : MonoBehaviour
         if(currentMap != null)
         {
             MapLoader.SpawnMap(currentMap,(GameObject tile, int x, int z)=> {
+
+                if (!tile.GetComponent<FloorTile>().IsWalkable)
+                {
+                    if(tile.transform.position.x != 0 && tile.transform.position.x != currentMap.width - 1 &&
+                    tile.transform.position.z != 0 && tile.transform.position.z != currentMap.height - 1)
+                        obstacles.Add(tile.transform.position);
+                }
+
                 if (x == currentMap.endTile.x && z == currentMap.endTile.z)
                     tile.GetComponent<MeshRenderer>().material.color = Color.green;
             });
@@ -66,6 +82,10 @@ public class GameManager : MonoBehaviour
            // endTileVec2Pos = new Vector2(currentMap.endTile.x, currentMap.endTile.z);
             navMeshSurface.BuildNavMesh();
         }
+
+        var allEnemies = GameObject.FindGameObjectsWithTag("Enemy");
+        foreach(GameObject g in allEnemies)
+            g.GetComponent<Enemy>().Init();
     }
 
 

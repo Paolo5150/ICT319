@@ -8,7 +8,7 @@ public class StateIcon : MonoBehaviour
 
     Quaternion originalRotation;
     Image image;
-    void Start()
+    public void Init()
     {
         originalRotation = transform.rotation;
         image = GetComponentInChildren<Image>();

@@ -4,6 +4,15 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour, IShootable
 {
+
+    public enum PersonalityEnum
+    {
+        BESERK,
+        COWARD
+    }
+
+    public PersonalityEnum enemyPersonality;
+
     public EnemyPatrolSO patrolSO;
     [HideInInspector]
     public Navigator navigator;
@@ -27,26 +36,60 @@ public class Enemy : MonoBehaviour, IShootable
         }
     }
 
- 
+    void OnEnable()
+    {
+        Player.OnShotFired += OnPlayerShotFired;
+    }
+
+    void OnDisable()
+    {
+        Player.OnShotFired -= OnPlayerShotFired;
+    }
     // Start is called before the first frame update
     void Start()
     {
+
+    }
+
+    public void Init()
+    {
         stateIcon = GetComponentInChildren<StateIcon>();
+        stateIcon.Init();
         navigator = GetComponent<Navigator>();
         navigator.Init();
+
         health = new Health();
         rifle = GetComponentInChildren<Rifle>();
         enemySight = GetComponent<EnemySight>();
-        personality = new Beserk(this);
         enemySight.SetOnPlayerSightedListener(() => {
             playerLastKnownPosition = Player.Instance.transform.position;
         });
-    }
 
+        ChoosePersonality();
+    }
 
     private void Update()
     {
-        personality.Update();
+        if(personality != null)
+            personality.Update();
+    }
+
+    void OnPlayerShotFired()
+    {
+        personality.OnPlayeShotFired(Player.Instance.transform.position);
+    }
+
+    void ChoosePersonality()
+    {
+        switch(enemyPersonality)
+        {
+            case PersonalityEnum.BESERK:
+                personality = new Beserk(this);
+                break;
+            case PersonalityEnum.COWARD:
+                personality = new Coward(this);
+                break;
+        }
     }
 
 }

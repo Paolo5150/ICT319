@@ -7,6 +7,7 @@ public class EnemySight : MonoBehaviour
 {
     public float viewRange = 3.0f;
     public float FOV = 120.0f;
+    public float hearRange = 20.0f;
 
     public Ray rayToPlayer;
     RaycastHit hit;

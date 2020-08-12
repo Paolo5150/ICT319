@@ -234,7 +234,7 @@ public class MapEditor : EditorWindow
                             if (!Directory.Exists("Assets/Resources/Maps/Level_" + mapSaveName + "/Enemies"))
                                 Directory.CreateDirectory("Assets/Resources/Maps/Level_" + mapSaveName + "/Enemies");
 
-                            /*g.GetComponent<Enemy>().patrolSO = ScriptableObject.CreateInstance<EnemyPatrolSO>();
+                            g.GetComponent<Enemy>().patrolSO = ScriptableObject.CreateInstance<EnemyPatrolSO>();
                             g.GetComponent<Enemy>().patrolSO.patrolPoint = new List<Vector3>();
                             g.GetComponent<Enemy>().patrolSO.times = new List<float>();
                             g.GetComponent<Enemy>().patrolSO.rotations = new List<float>();
@@ -243,7 +243,7 @@ public class MapEditor : EditorWindow
                             g.GetComponent<Enemy>().patrolSO.rotations.Add(ghost.transform.rotation.eulerAngles.y);
 
                             AssetDatabase.CreateAsset(g.GetComponent<Enemy>().patrolSO, "Assets/Resources/Maps/Level_" + mapSaveName + "/Enemies/Enemy_" + GUID.Generate() + ".asset");
-                            EditorUtility.SetDirty(g.GetComponent<Enemy>().patrolSO);*/
+                            EditorUtility.SetDirty(g.GetComponent<Enemy>().patrolSO);
                             AssetDatabase.SaveAssets();
 
                         }
@@ -371,11 +371,11 @@ public class MapEditor : EditorWindow
             }
         }
 
-        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+      /*  GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
 
         mapso.enemyCount = enemies.Length;
 
-       /* if(!Directory.Exists(folderPath + "/Enemies"))
+        if(!Directory.Exists(folderPath + "/Enemies"))
             Directory.CreateDirectory(folderPath + "/Enemies");
 
         List<string> savedFiles = new List<string>();
@@ -396,14 +396,18 @@ public class MapEditor : EditorWindow
                     AssetDatabase.CreateAsset(enemySO, folderPath + "/Enemies/" + "Enemy_" + counter + ".asset");
                 }
                 savedFiles.Add(enemySO.name);
-                EditorUtility.SetDirty(enemySO);
                 counter++;
                 go.GetComponent<Enemy>().patrolSO = enemySO;
-             }          
-        }
+                EditorUtility.SetDirty(enemySO);
+                EditorUtility.SetDirty(go.GetComponent<Enemy>().patrolSO);
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
 
+            }
+        }
+        */
         //Get all files in enemy folder
-        string[] files = Directory.GetFiles(folderPath + "/Enemies");
+       /* string[] files = Directory.GetFiles(folderPath + "/Enemies");
         foreach (string file in files)
         {
             if (!savedFiles.Contains<string>(file))
@@ -412,7 +416,6 @@ public class MapEditor : EditorWindow
                     File.Delete(file);
             }
         }*/
-
 
         EditorUtility.SetDirty(mapso);
         AssetDatabase.SaveAssets();
