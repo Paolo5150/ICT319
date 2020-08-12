@@ -14,7 +14,7 @@ public class Rifle : MonoBehaviour
     {
         lineRenderer = GetComponentInChildren<LineRenderer>();
         shootPoint = transform.GetChild(2);
-        shootableMask = LayerMask.GetMask("Shootable");
+        shootableMask = LayerMask.GetMask("Shootable", "Wall");
         lineRenderer.enabled = false;
     }
 
@@ -22,6 +22,8 @@ public class Rifle : MonoBehaviour
     {
         isShooting = true;
         lineRenderer.enabled = true;
+        lineRenderer.SetPosition(0, shootPoint.position);
+
         yield return new WaitForSeconds(fireRate);
         lineRenderer.enabled = false;
         yield return new WaitForSeconds(fireRate);
@@ -29,31 +31,30 @@ public class Rifle : MonoBehaviour
         isShooting = false;
     }
 
-    public RaycastHit[] Shoot(float fireRate, GameObject from, float damage)
+    public RaycastHit? Shoot(float fireRate, GameObject from, float damage)
     {
-        RaycastHit[] hits = null;
+        RaycastHit hit;
         if (!isShooting)
         {
             StopAllCoroutines();
             StartCoroutine(FireEffect(fireRate));
             Ray shootRay = new Ray(transform.position, -transform.forward);
-            hits = Physics.RaycastAll(shootRay, 200, shootableMask);
-            foreach (RaycastHit hit in hits)
+            if(Physics.Raycast(shootRay, out hit ,500, shootableMask))
             {
-                MonoBehaviour[] mb = hit.collider.gameObject.GetComponents<MonoBehaviour>();
-                foreach(MonoBehaviour mono in mb)
+                MonoBehaviour mono = hit.collider.gameObject.GetComponent<MonoBehaviour>();
+
+                lineRenderer.SetPosition(1, new Vector3(hit.collider.transform.position.x, shootPoint.position.y, hit.collider.transform.position.z));
+                if (mono is IShootable)
                 {
-                    if (mono is IShootable)
-                    {
-                        IShootable shootable = (IShootable)mono;
-                        shootable.OnGetShot(from, damage);
-                    }
+                    IShootable shootable = (IShootable)mono;
+                    shootable.OnGetShot(from, damage);
                 }
-     
+                return hit;
             }
+           
 
         }
 
-        return hits;
+        return null;
     }
 }

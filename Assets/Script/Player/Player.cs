@@ -70,11 +70,10 @@ public class Player : MonoBehaviour, IShootable
     void Shoot()
     {
         if (Input.GetMouseButton(0))
-        {
-            OnShotFired();
-            RaycastHit[] hits = rifle.Shoot(fireRate, this.gameObject, damageGiven);
-           
-
+        {   
+            rifle.Shoot(fireRate, this.gameObject, damageGiven);
+            if (OnShotFired != null)
+                OnShotFired();
         }
 
     }

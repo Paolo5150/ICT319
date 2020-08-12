@@ -22,7 +22,7 @@ public class StateIcon : MonoBehaviour
 
     IEnumerator Show(float s)
     {
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.1f);
 
         image.enabled = true;
         yield return new WaitForSeconds(s);

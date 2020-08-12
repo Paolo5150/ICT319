@@ -6,7 +6,7 @@ using UnityEngine.AI;
 public class HideState : EnemyState
 {
     public bool doneHiding { get; private set; }
-
+    public bool isHiding { get; private set; }
     bool canStartTimer;
     float safeRange = 10;
     float secondsToQuitState = 6.0f;
@@ -18,14 +18,20 @@ public class HideState : EnemyState
         wallLayer = LayerMask.GetMask("Wall");
     }
 
+    public void UpdatePos(Vector3 shotPos)
+    {
+    }
+
     public override void OnEnter()
     {
         base.OnEnter();
-        personalityObj.enemyObj.StopAllCoroutines();
+      //  personalityObj.enemyObj.StopAllCoroutines();
         var obstacles = GameManager.Instance.GetObstacles();
 
         personalityObj.enemyObj.navigator.SetOnDestinationReachedListener(()=> {
             canStartTimer = true;
+            isHiding = false;
+
 
         });
 
@@ -76,11 +82,12 @@ public class HideState : EnemyState
                     NavMesh.SamplePosition(pos, out NavMeshHit hit, 100, 1);
 
                     //Cast from player to potential hiding spot. If a wall is hit, the spot is hidden
-                    Ray playerToSpot = new Ray(Player.Instance.transform.position, hit.position);
+                    Ray playerToSpot = new Ray(Player.Instance.transform.position, pos);
                     if (Physics.Raycast(playerToSpot, 500, wallLayer))
                     {
                         personalityObj.enemyObj.navigator.UseRunSpeed();
                         personalityObj.enemyObj.navigator.Go(hit.position);
+                        isHiding = true;
                         return true;
                     }
                 }       

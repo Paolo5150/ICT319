@@ -7,6 +7,7 @@ public class Beserk : Personality
     WanderState wanderState;
     ShootState shootState;
     InvestigateState investigationState;
+    Sprite qMark;
 
     //Test
 
@@ -25,7 +26,7 @@ public class Beserk : Personality
         shootState = new ShootState(this, shootRate);
         investigationState = new InvestigateState(this);
 
-
+        qMark = Resources.Load<Sprite>("StateIcons\\what");
 
         wanderState.AddTransition(() =>
         {
@@ -61,6 +62,7 @@ public class Beserk : Personality
 
     IEnumerator GoInvestigateNoise(Vector3 shotPosition)
     {
+        enemyObj.stateIcon.EnableTemporarily(qMark, 2);
         enemyObj.transform.LookAt(shotPosition);
         yield return new WaitForSeconds(3);
         investigationState.investigationPoint = shotPosition;

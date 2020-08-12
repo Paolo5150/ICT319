@@ -36,6 +36,13 @@ public class Coward : Personality
 
     public override void OnPlayeShotFired(Vector3 shotPosition)
     {
-        stateMachine.SetState(hideState);
+        float toPlayer = (shotPosition - enemyObj.transform.position).magnitude;
+
+        if (toPlayer < enemyObj.enemySight.hearRange)
+        {
+            //enemyObj.navigator.Stop();
+            if(!hideState.isHiding)
+            stateMachine.SetState(hideState);
+        }
     }
 }

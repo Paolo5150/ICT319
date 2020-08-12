@@ -7,10 +7,20 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 879255237172853017, guid: 84a6727b289db334c80ba1edfedab915,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3282917880690298685, guid: 84a6727b289db334c80ba1edfedab915,
         type: 3}
       propertyPath: m_Name
       value: rifle
+      objectReference: {fileID: 0}
+    - target: {fileID: 4419519350149845613, guid: 84a6727b289db334c80ba1edfedab915,
+        type: 3}
+      propertyPath: m_Positions.Array.data[1].z
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5973727381347919478, guid: 84a6727b289db334c80ba1edfedab915,
         type: 3}
@@ -66,6 +76,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7303512642211203155, guid: 84a6727b289db334c80ba1edfedab915,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.747
+      objectReference: {fileID: 0}
+    - target: {fileID: 7303512642211203155, guid: 84a6727b289db334c80ba1edfedab915,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.118
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 84a6727b289db334c80ba1edfedab915, type: 3}
