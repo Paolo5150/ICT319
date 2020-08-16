@@ -8,21 +8,17 @@ public class HideState : EnemyState
     public bool doneHiding { get; private set; }
     public bool isHiding { get; private set; }
 
-    public bool useSosIcon = false;
     bool canStartTimer;
     float safeRange = 10;
     float secondsToQuitState = 6.0f;
     float timer = 0;
     int wallLayer;
 
-    Sprite sosSprite;
-    Sprite hideSprite;
     public HideState(Personality e) : base(e)
     {
-        hideSprite = Resources.Load<Sprite>("StateIcons\\hide");
-        sosSprite = Resources.Load<Sprite>("StateIcons\\sos");
-
+        stateImageSprite = Resources.Load<Sprite>("StateIcons\\hide");
         wallLayer = LayerMask.GetMask("Wall");
+
     }
 
     public void UpdatePos(Vector3 shotPos)
@@ -31,10 +27,6 @@ public class HideState : EnemyState
 
     public override void OnEnter()
     {
-        if (useSosIcon)
-            stateImageSprite = sosSprite;
-        else
-            stateImageSprite = hideSprite;
         base.OnEnter();
         var obstacles = GameManager.Instance.GetObstacles();
 

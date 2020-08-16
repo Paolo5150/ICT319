@@ -20,58 +20,37 @@ public class Rifle : MonoBehaviour
 
     IEnumerator FireEffect(float fireRate)
     {
-        isShooting = true;
         lineRenderer.enabled = true;
-        lineRenderer.SetPosition(0, shootPoint.position);
-
-        yield return new WaitForSeconds(0.001f);
+        yield return new WaitForSeconds(fireRate / 2.0f);
         lineRenderer.enabled = false;
-        yield return new WaitForSeconds(fireRate);
 
-        isShooting = false;
     }
 
-    public GameObject Aim()
+
+    public GameObject Shoot(float fireRate, GameObject from, float damage)
     {
         RaycastHit hit;
         Ray shootRay = new Ray(transform.position, -transform.forward);
         if (Physics.Raycast(shootRay, out hit, 500, shootableMask))
         {
+            lineRenderer.SetPosition(0, shootPoint.position);
+
+            lineRenderer.SetPosition(1, new Vector3(hit.point.x, shootPoint.position.y, hit.point.z));
+            StartCoroutine(FireEffect(fireRate));
+
             MonoBehaviour[] mono = hit.collider.gameObject.GetComponents<MonoBehaviour>();
-            lineRenderer.SetPosition(1, new Vector3(hit.collider.transform.position.x, shootPoint.position.y, hit.collider.transform.position.z));
+            foreach (MonoBehaviour m in mono)
+            {
+                if (m is IShootable)
+                {
+                    IShootable shootable = (IShootable)m;
+                    shootable.OnGetShot(from, damage);
+                }
+            }
+
             return hit.collider.gameObject;
         }
-
-        return null;
-    }
-
-    public GameObject Shoot(float fireRate, GameObject from, float damage)
-    {
-        GameObject hit;
-        if (!isShooting)
-        {
-            hit = Aim();
-            StopAllCoroutines();
-            StartCoroutine(FireEffect(fireRate));
-            if(hit != null)
-            {
-                MonoBehaviour[] mono = hit.GetComponents<MonoBehaviour>();
-
-                lineRenderer.SetPosition(1, new Vector3(hit.transform.position.x, shootPoint.position.y, hit.transform.position.z));
-                foreach(MonoBehaviour m in mono)
-                {
-                    if (m is IShootable)
-                    {
-                        IShootable shootable = (IShootable)m;
-                        shootable.OnGetShot(from, damage);
-                    }
-                }
-    
-                return hit;
-            }
-           
-
-        }
+      
 
         return null;
     }

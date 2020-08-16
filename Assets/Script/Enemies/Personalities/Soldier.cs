@@ -9,9 +9,10 @@ public class Soldier : Personality
     InvestigateState investigationState;
     Retreat retreatState;
     HideState hideState;
-    Sprite qMark;
 
     float minHealthForRetreat = 35.0f;
+
+    float alarmTimer = 0;
 
     public Soldier(Enemy e) : base(e)
     {
@@ -27,13 +28,12 @@ public class Soldier : Personality
         retreatState = new Retreat(this, minHealthForRetreat);
         hideState = new HideState(this);
 
-        qMark = Resources.Load<Sprite>("StateIcons\\what");
 
         shootState.AddTransition(() =>
         {
             if (!enemyObj.enemySight.IsPlayerInSight())
             {
-                investigationState.waitTime = 0;
+                investigationState.waitBeforeGoingToPoint = 0;
                 investigationState.investigationPoint = Player.Instance.transform.position;
                 return true;
             }
@@ -108,9 +108,14 @@ public class Soldier : Personality
 
     }
 
-    void GoInsestigateSOS(Vector3 pos)
+    void GoInsestigateSOS(Vector3 pos, GameObject triggeredBy)
     {
-        investigationState.waitTime = 0.0f;
+        if(triggeredBy == enemyObj.gameObject)
+        {
+            Debug.Log("Received alarm, but triggered by me!");
+            return;
+        }
+        investigationState.waitBeforeGoingToPoint = 0.0f;
         investigationState.investigationPoint = pos;
 
         if (stateMachine.GetCurrentState() == investigationState)
@@ -125,6 +130,11 @@ public class Soldier : Personality
     public override void Update()
     {
         base.Update();
+        if (alarmTimer > 0)
+        {
+            alarmTimer -= Time.deltaTime;
+        }
+
     }
 
 
@@ -154,13 +164,17 @@ public class Soldier : Personality
     public override void OnPlayerSeen(Vector3 pPosition)
     {
         base.OnPlayerSeen(pPosition);
-        Enemy.TriggerAlarm(pPosition);
+        if(alarmTimer <= 0.0f)
+        {
+            Debug.Log("Alarm triggered");
+            enemyObj.TriggerAlarm(pPosition);
+            alarmTimer = 10.0f;
+        }
 
         if (enemyObj.health.GetHealth() >= minHealthForRetreat)
         {
-            GameObject aimingAt = enemyObj.rifle.Aim();
-                stateMachine.SetState(shootState);
-      
+            if(stateMachine.GetCurrentState() != shootState)
+                stateMachine.SetState(shootState);      
         }
         else
         {
@@ -180,9 +194,9 @@ public class Soldier : Personality
     public override void OnPlayeShotFired(Vector3 shotPosition)
     {
         if (stateMachine.GetCurrentState() == investigationState)
-            investigationState.waitTime = 0.0f;
+            investigationState.waitBeforeGoingToPoint = 0.0f;
         else
-            investigationState.waitTime = 1.0f;
+            investigationState.waitBeforeGoingToPoint = 1.0f;
 
         if (enemyObj.health.GetHealth() >= minHealthForRetreat)
         {
@@ -192,7 +206,6 @@ public class Soldier : Personality
 
                 if (toPlayer < enemyObj.enemySight.hearRange)
                 {
-                    enemyObj.stateIcon.EnableTemporarily(qMark);
                     enemyObj.navigator.Stop();
                     investigationState.investigationPoint = shotPosition;
                     stateMachine.SetState(investigationState);

@@ -15,7 +15,7 @@ public abstract class EnemyState : State
     public override void OnEnter()
     {
         if(stateImageSprite != null)
-        personalityObj.enemyObj.stateIcon.EnableTemporarily(stateImageSprite);
+            personalityObj.enemyObj.stateIcon.EnableTemporarily(stateImageSprite);
 
     }
     public override void Update()

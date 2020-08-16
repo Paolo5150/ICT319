@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour, IShootable
 {
-    public delegate void SendAlarm(Vector3 playerSightPosition);
+    public delegate void SendAlarm(Vector3 playerSightPosition, GameObject triggeredBy);
     public static event SendAlarm OnAlarmSent;
 
     public enum PersonalityEnum
@@ -23,6 +23,7 @@ public class Enemy : MonoBehaviour, IShootable
     [HideInInspector]
     public Rifle rifle;
 
+    Sprite sosSprite;
  
     public float damageGiven;
     public float shootRate = 0.1f;
@@ -68,10 +69,11 @@ public class Enemy : MonoBehaviour, IShootable
 
     }
 
-    public static void TriggerAlarm(Vector3 playerPos)
+    public void TriggerAlarm(Vector3 playerPos)
     {
+        stateIcon.EnableTemporarily(sosSprite, 1.0f,false);
         if (OnAlarmSent != null)
-            OnAlarmSent(playerPos);
+            OnAlarmSent(playerPos, this.gameObject);
     }
 
     void OnPlayerDeath()
@@ -96,7 +98,7 @@ public class Enemy : MonoBehaviour, IShootable
             if (personality != null)
                 personality.OnPlayerSeen(Player.Instance.transform.position);
         });
-
+        sosSprite = Resources.Load<Sprite>("StateIcons\\sos");
         ChoosePersonality();
     }
 

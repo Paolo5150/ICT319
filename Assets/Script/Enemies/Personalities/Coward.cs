@@ -4,11 +4,8 @@ using UnityEngine;
 
 public class Coward : Personality
 {
-
-
     WanderState wanderState;
     HideState hideState;
-
 
     public Coward(Enemy e) : base(e)
     {
@@ -21,7 +18,6 @@ public class Coward : Personality
         base.Init();
         wanderState = new WanderState(this);
         hideState = new HideState(this);
-
                
 
         hideState.AddTransition(() => 
@@ -41,8 +37,7 @@ public class Coward : Personality
     public override void OnPlayerSeen(Vector3 playerPos)
     {
 
-        Enemy.TriggerAlarm(playerPos);
-        hideState.useSosIcon = true;
+        enemyObj.TriggerAlarm(playerPos);
         stateMachine.SetState(hideState);
     }
 
@@ -50,8 +45,7 @@ public class Coward : Personality
     {
         if(from.gameObject.tag.Equals("Player"))
         {
-            Enemy.TriggerAlarm(enemyObj.transform.position);
-            hideState.useSosIcon = true;
+            enemyObj.TriggerAlarm(enemyObj.transform.position);
             stateMachine.SetState(hideState);
         }
 
@@ -68,7 +62,6 @@ public class Coward : Personality
 
         if (toPlayer < enemyObj.enemySight.hearRange)
         {
-            hideState.useSosIcon = false;
 
             if (!hideState.isHiding)
             stateMachine.SetState(hideState);

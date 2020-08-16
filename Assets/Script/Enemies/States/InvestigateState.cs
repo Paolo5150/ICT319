@@ -9,23 +9,19 @@ public class InvestigateState : EnemyState
     public bool done = false;
     private float rotateTimer = 0;
     public bool isInvestigating = false;
-    public float waitTime = 0.0f;
+    public float waitBeforeGoingToPoint = 0.0f;
 
     float investigationTimer;
 
-    Sprite whatSprite = Resources.Load<Sprite>("StateIcons\\what");
-    Sprite thinkSprite = Resources.Load<Sprite>("StateIcons\\investigate");
     public InvestigateState(Personality e) : base(e)
     {
-        whatSprite = Resources.Load<Sprite>("StateIcons\\what");
-        thinkSprite = Resources.Load<Sprite>("StateIcons\\investigate");
+        stateImageSprite = Resources.Load<Sprite>("StateIcons\\what");
     }
 
     IEnumerator StartInvestigating()
     {
 
-        yield return new WaitForSeconds(waitTime);
-        personalityObj.enemyObj.stateIcon.EnableTemporarily(thinkSprite, 1.0f);
+        yield return new WaitForSeconds(waitBeforeGoingToPoint);
 
         personalityObj.enemyObj.navigator.UseRunSpeed();
         personalityObj.enemyObj.navigator.Go(investigationPoint);
@@ -34,7 +30,7 @@ public class InvestigateState : EnemyState
 
     public override void OnEnter()
     {
-        stateImageSprite = whatSprite;
+        Debug.Log("Enter investigation");
         base.OnEnter();
         personalityObj.enemyObj.navigator.SetOnDestinationReachedListener(() =>
         {

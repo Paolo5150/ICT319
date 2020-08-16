@@ -35,7 +35,7 @@ public class Beserk : Personality
         {
             if(!enemyObj.enemySight.IsPlayerInSight())
             {
-                investigationState.waitTime = 0;
+                investigationState.waitBeforeGoingToPoint = 0;
                 investigationState.investigationPoint = Player.Instance.transform.position;
                 shootTimer = 15.0f;
                 return true;
@@ -63,9 +63,9 @@ public class Beserk : Personality
 
     }
 
-    void GoInsestigateSOS(Vector3 pos)
+    void GoInsestigateSOS(Vector3 pos, GameObject triggeredBy)
     {
-        investigationState.waitTime = 0.0f;
+        investigationState.waitBeforeGoingToPoint = 0.0f;
         investigationState.investigationPoint = pos;
 
         if (stateMachine.GetCurrentState() == investigationState)
@@ -80,6 +80,7 @@ public class Beserk : Personality
     public override void Update()
     {
         base.Update();
+        //Will shot for a certain amount of time after losing sight of the player
         if(shootTimer > 0)
         {
             enemyObj.rifle.Shoot(enemyObj.shootRate, enemyObj.gameObject, enemyObj.damageGiven);
@@ -111,9 +112,9 @@ public class Beserk : Personality
     public override void OnPlayeShotFired(Vector3 shotPosition)
     {
         if(stateMachine.GetCurrentState() == investigationState)
-            investigationState.waitTime = 0.0f;
+            investigationState.waitBeforeGoingToPoint = 0.0f;
             else
-            investigationState.waitTime = 1.0f;
+            investigationState.waitBeforeGoingToPoint = 1.0f;
 
         if (stateMachine.GetCurrentState() != shootState && !investigationState.isInvestigating)
         {

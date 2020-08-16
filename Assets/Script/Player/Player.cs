@@ -39,7 +39,7 @@ public class Player : MonoBehaviour, IShootable
 
     int raycastPlane;
     Rifle rifle;
-
+    float shootTimer = 0.0f;
     // Start is called before the first frame update
     public void Init()
     {
@@ -75,10 +75,17 @@ public class Player : MonoBehaviour, IShootable
     void Shoot()
     {
         if (Input.GetMouseButton(0))
-        {   
-            rifle.Shoot(fireRate, this.gameObject, damageGiven);
-            if (OnShotFired != null)
-                OnShotFired();
+        {
+            if (shootTimer >= fireRate)
+            {
+                rifle.Shoot(fireRate, this.gameObject, damageGiven);
+                shootTimer = 0.0f;
+                if (OnShotFired != null)
+                    OnShotFired();
+            }
+            else
+                shootTimer += Time.deltaTime;
+  
         }
     }
 
