@@ -9,11 +9,6 @@ public class Beserk : Personality
     InvestigateState investigationState;
     Sprite qMark;
 
-    //Test
-
-
-    float shootRate = 0.1f;
-
     public Beserk(Enemy e) : base(e)
     {
         Init();
@@ -23,7 +18,7 @@ public class Beserk : Personality
     {
         base.Init();
         wanderState = new WanderState(this);
-        shootState = new ShootState(this, shootRate);
+        shootState = new ShootState(this, enemyObj.shootRate);
         investigationState = new InvestigateState(this);
 
         qMark = Resources.Load<Sprite>("StateIcons\\what");
@@ -38,6 +33,7 @@ public class Beserk : Personality
         {
             if(!enemyObj.enemySight.IsPlayerInSight())
             {
+                investigationState.waitTime = 0;
                 investigationState.investigationPoint = Player.Instance.transform.position;
                 return true;
             }
@@ -52,7 +48,30 @@ public class Beserk : Personality
             return investigationState.done;
         }, wanderState);
 
+
+        //Beserk will respond to alarm
+        Coward.OnAlarmSent += GoInsestigateSOS;
         stateMachine.SetState(wanderState);
+    }
+
+    public override void OnObjDisable()
+    {
+        Coward.OnAlarmSent -= GoInsestigateSOS;
+
+    }
+
+    void GoInsestigateSOS(Vector3 pos)
+    {
+        investigationState.waitTime = 0.0f;
+        investigationState.investigationPoint = pos;
+
+        if (stateMachine.GetCurrentState() == investigationState)
+        {
+            if (!investigationState.isInvestigating)
+                stateMachine.SetState(investigationState);
+        }
+        else
+            stateMachine.SetState(investigationState);
     }
 
     public override void Update()
@@ -60,25 +79,47 @@ public class Beserk : Personality
         base.Update();
     }
 
-    IEnumerator GoInvestigateNoise(Vector3 shotPosition)
+
+    public override void OnGetShot(GameObject from)
     {
-        enemyObj.stateIcon.EnableTemporarily(qMark, 2);
-        enemyObj.transform.LookAt(shotPosition);
-        yield return new WaitForSeconds(3);
-        investigationState.investigationPoint = shotPosition;
-        stateMachine.SetState(investigationState);
+        if(from.tag.Equals("Player"))
+        {
+            if (stateMachine.GetCurrentState() != shootState && !investigationState.isInvestigating)
+            {
+                investigationState.investigationPoint = from.transform.position;
+                stateMachine.SetState(investigationState);
+            }
+        }
+  
+    }
+
+    public override void OnPlayerDeath()
+    {
+        base.OnPlayerDeath();
+        enemyObj.enemySight.enabled = false;
+        stateMachine.SetState(wanderState);
     }
 
     public override void OnPlayeShotFired(Vector3 shotPosition)
     {
-        float toPlayer = (shotPosition - enemyObj.transform.position).magnitude;
+        if(stateMachine.GetCurrentState() == investigationState)
+            investigationState.waitTime = 0.0f;
+            else
+            investigationState.waitTime = 1.0f;
 
-        if(toPlayer < enemyObj.enemySight.hearRange)
+        if (stateMachine.GetCurrentState() != shootState && !investigationState.isInvestigating)
         {
-            enemyObj.navigator.Stop();
-            enemyObj.StopAllCoroutines();
-            enemyObj.StartCoroutine(GoInvestigateNoise(shotPosition));
+            float toPlayer = (shotPosition - enemyObj.transform.position).magnitude;
 
+            if (toPlayer < enemyObj.enemySight.hearRange)
+            {
+                enemyObj.stateIcon.EnableTemporarily(qMark);
+                enemyObj.navigator.Stop();
+                investigationState.investigationPoint = shotPosition;
+                stateMachine.SetState(investigationState);
+
+            }
         }
+       
     }
 }

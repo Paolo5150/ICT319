@@ -323,6 +323,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   viewRange: 15
   FOV: 120
+  hearRange: 20
 --- !u!136 &5173547965724853861
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -349,11 +350,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 563f71bcb2db1a5409cc2be688a9a02d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enemyPersonality: 0
   patrolSO: {fileID: 0}
   navigator: {fileID: 0}
   enemySight: {fileID: 0}
   rifle: {fileID: 0}
   damageGiven: 0
+  shootRate: 0.1
   playerLastKnownPosition: {x: 0, y: 0, z: 0}
   stateIcon: {fileID: 0}
 --- !u!1 &5042338848666831687
@@ -368,7 +371,7 @@ GameObject:
   - component: {fileID: 5042338848666831683}
   - component: {fileID: 5042338848666831680}
   - component: {fileID: 5042338848666831681}
-  m_Layer: 11
+  m_Layer: 0
   m_Name: Glasses
   m_TagString: Untagged
   m_Icon: {fileID: 0}

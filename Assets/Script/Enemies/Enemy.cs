@@ -4,16 +4,16 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour, IShootable
 {
-
+    public GameObject explosion;
     public enum PersonalityEnum
     {
         BESERK,
-        COWARD
+        COWARD,
+        SOLDIER
     }
 
     public PersonalityEnum enemyPersonality;
 
-    public EnemyPatrolSO patrolSO;
     [HideInInspector]
     public Navigator navigator;
     [HideInInspector]
@@ -23,27 +23,42 @@ public class Enemy : MonoBehaviour, IShootable
 
  
     public float damageGiven;
+    public float shootRate = 0.1f;
+
     public Vector3 playerLastKnownPosition;
     public StateIcon stateIcon;
     Personality personality;
-    Health health;
+    public Health health;
     public void OnGetShot(GameObject from, float damage)
     {
-        health.Add(-damage);
-        if(health.IsDead())
+        if(health != null)
         {
-            gameObject.SetActive(false);
+            health.Add(-damage);
+            if(health.IsDead())
+            {
+                gameObject.SetActive(false);
+                personality = null;
+               // explosion.GetComponent<ExplosionEffect>().Trigger();
+            }
         }
+
+        if (personality != null)
+            personality.OnGetShot(from);
     }
 
     void OnEnable()
     {
         Player.OnShotFired += OnPlayerShotFired;
+        Player.OnPlayerDeath += OnPlayerDeath;
     }
 
     void OnDisable()
     {
         Player.OnShotFired -= OnPlayerShotFired;
+        Player.OnPlayerDeath -= OnPlayerDeath;
+
+        if (personality != null)
+            personality.OnObjDisable();
     }
     // Start is called before the first frame update
     void Start()
@@ -51,18 +66,28 @@ public class Enemy : MonoBehaviour, IShootable
 
     }
 
+    void OnPlayerDeath()
+    {
+        if (personality != null)
+            personality.OnPlayerDeath();
+    }
+
     public void Init()
     {
+        if (!enabled) return;
         stateIcon = GetComponentInChildren<StateIcon>();
         stateIcon.Init();
         navigator = GetComponent<Navigator>();
         navigator.Init();
+        explosion.GetComponent<ExplosionEffect>().Init();
 
         health = new Health();
         rifle = GetComponentInChildren<Rifle>();
         enemySight = GetComponent<EnemySight>();
+
         enemySight.SetOnPlayerSightedListener(() => {
-            playerLastKnownPosition = Player.Instance.transform.position;
+            if (personality != null)
+                personality.OnPlayerSeen(Player.Instance.transform.position);
         });
 
         ChoosePersonality();
@@ -76,7 +101,8 @@ public class Enemy : MonoBehaviour, IShootable
 
     void OnPlayerShotFired()
     {
-        personality.OnPlayeShotFired(Player.Instance.transform.position);
+        if(personality != null)
+            personality.OnPlayeShotFired(Player.Instance.transform.position);
     }
 
     void ChoosePersonality()
@@ -88,8 +114,19 @@ public class Enemy : MonoBehaviour, IShootable
                 break;
             case PersonalityEnum.COWARD:
                 personality = new Coward(this);
+                GetComponent<MeshRenderer>().material.color = Color.yellow;
+                break;
+            case PersonalityEnum.SOLDIER:
+                personality = new Soldier(this);
+                GetComponent<MeshRenderer>().material.color = Color.gray;
                 break;
         }
+    }
+
+    void OnTriggerEnter(Collider c)
+    {
+        if (personality != null)
+            personality.OnTriggerEnter(c);
     }
 
 }

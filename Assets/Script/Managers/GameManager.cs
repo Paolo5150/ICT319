@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -56,8 +57,15 @@ public class GameManager : MonoBehaviour
         
     } 
 
-    
+    public void Restart()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
 
+    public void Quit()
+    {
+        Application.Quit();
+    }
 
     public void LoadMap()
     {
@@ -80,12 +88,13 @@ public class GameManager : MonoBehaviour
             GameObject player = GameObject.FindGameObjectWithTag("Player");
             player.transform.position = new Vector3(currentMap.startTile.x, 0.6f, currentMap.startTile.z);
            // endTileVec2Pos = new Vector2(currentMap.endTile.x, currentMap.endTile.z);
-            navMeshSurface.BuildNavMesh();
         }
 
+        MainCanvas.Instance.Init();
         var allEnemies = GameObject.FindGameObjectsWithTag("Enemy");
         foreach(GameObject g in allEnemies)
             g.GetComponent<Enemy>().Init();
+            navMeshSurface.BuildNavMesh();
     }
 
 

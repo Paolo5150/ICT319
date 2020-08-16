@@ -30,7 +30,7 @@ public class StateIcon : MonoBehaviour
 
     }
 
-    public void EnableTemporarily(Sprite sprite, float seconds)
+    public void EnableTemporarily(Sprite sprite, float seconds = 1.0f)
     {
         StopAllCoroutines();
         image.sprite = sprite;

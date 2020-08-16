@@ -38,7 +38,7 @@ public class EnemyInspector : Editor
     
     void OnSceneGUI(SceneView sceneView)
     {
-        if(addingPoint)
+       /* if(addingPoint)
         {
             int controlID = GUIUtility.GetControlID(FocusType.Passive); 
 
@@ -70,7 +70,7 @@ public class EnemyInspector : Editor
         {
             GUIUtility.hotControl = 0;
         }
-
+        */
         Vector3? previous = null;
        /* foreach(Vector3 point in enemyScript.patrolSO.patrolPoint)
         {

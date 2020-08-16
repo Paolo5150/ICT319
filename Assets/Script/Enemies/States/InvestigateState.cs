@@ -7,28 +7,52 @@ public class InvestigateState : EnemyState
 {
     public Vector3 investigationPoint;
     public bool done = false;
-    public float timer;
-    public float rotateTimer = 0;
+    private float rotateTimer = 0;
+    public bool isInvestigating = false;
+    public float waitTime = 0.0f;
+
+    float investigationTimer;
+
+    Sprite whatSprite = Resources.Load<Sprite>("StateIcons\\what");
+    Sprite thinkSprite = Resources.Load<Sprite>("StateIcons\\investigate");
     public InvestigateState(Personality e) : base(e)
     {
-        stateImageSprite = Resources.Load<Sprite>("StateIcons\\investigate");
+        whatSprite = Resources.Load<Sprite>("StateIcons\\what");
+        thinkSprite = Resources.Load<Sprite>("StateIcons\\investigate");
+    }
+
+    IEnumerator StartInvestigating()
+    {
+
+        yield return new WaitForSeconds(waitTime);
+        personalityObj.enemyObj.stateIcon.EnableTemporarily(thinkSprite, 1.0f);
+
+        personalityObj.enemyObj.navigator.UseRunSpeed();
+        personalityObj.enemyObj.navigator.Go(investigationPoint);
     }
 
 
     public override void OnEnter()
     {
+        stateImageSprite = whatSprite;
         base.OnEnter();
         personalityObj.enemyObj.navigator.SetOnDestinationReachedListener(() =>
         {
             personalityObj.enemyObj.StartCoroutine(RotateAround());
 
         });
-        personalityObj.enemyObj.StopAllCoroutines();
         personalityObj.enemyObj.enemySight.StartLookingForPlayer();
-        personalityObj.enemyObj.navigator.UseRunSpeed();
-        personalityObj.enemyObj.navigator.Go(investigationPoint);
-        timer = 0;
+
+        personalityObj.enemyObj.transform.LookAt(investigationPoint);
+
+        isInvestigating = true; //Started investigating. Set false after a few seconds, so if another noie is heard the enemy will go check the new noise
         done = false;
+
+        investigationTimer = 0;
+
+        personalityObj.enemyObj.StopAllCoroutines();
+        personalityObj.enemyObj.StartCoroutine(StartInvestigating());
+
 
     }
 
@@ -61,14 +85,18 @@ public class InvestigateState : EnemyState
     {
         base.Update();
 
-
-
+        if (investigationTimer < 1.5f && isInvestigating)
+            investigationTimer += Time.deltaTime;
+        else
+            isInvestigating = false;
   
 
     }
     public override void OnExit()
     {
-        Debug.Log("Exit shoot");
+        personalityObj.enemyObj.navigator.SetOnDestinationReachedListener(() =>
+        {
 
+        });
     }
 }

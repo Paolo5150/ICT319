@@ -1,67 +1,45 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿//using System.Collections;
+//using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class CameraZoom : MonoBehaviour
 {
-    public float maxSize = 15.0f;
-    public float minSize = 5.0f;
-    public static float origDistance;
-    public static float currentDistance;
-    bool first = true;
-    // Start is called before the first frame update
-    void Start()
+    public Transform target;
+    [Range(1f, 100f)] public float laziness = 10f;
+    [Range(1f, 100f)] public float lookLaziness = 10f;
+    public float zoomSpeed = 2.0f;
+    public bool lookAtTarget = true;
+    public bool takeOffsetFromInitialPos = true;
+    public Vector3 generalOffset;
+    Vector3 whereCameraShouldBe;
+    bool warningAlreadyShown = false;
+
+    private void Start()
     {
-        
+        if (takeOffsetFromInitialPos && target != null) generalOffset = transform.position - target.position;
     }
 
-    // Update is called once per frame
     void Update()
     {
-        Vector2 touch0, touch1;
-    
-        //For mouse
-        if(Input.mouseScrollDelta.y != 0)
+        if (target != null)
         {
-            Camera.main.orthographicSize -= Input.mouseScrollDelta.y / 10.0f;
-            Camera.main.orthographicSize = Mathf.Clamp(Camera.main.orthographicSize, minSize, maxSize);
-
-
-        }
-        if (Input.touchCount >= 2)
-        {
-
-            if(first)
-            {                
-                touch0 = Input.GetTouch(0).position;
-                touch1 = Input.GetTouch(1).position;
-                origDistance = Vector2.Distance(touch0, touch1);
-                currentDistance = origDistance;
-                first = false;
-            }
-            else
-            {
-                touch0 = Input.GetTouch(0).position;
-                touch1 = Input.GetTouch(1).position;
-                currentDistance = Vector2.Distance(touch0, touch1);
-            }
-
-            Camera.main.orthographicSize -= (currentDistance - origDistance) / 20.0f;
-            Camera.main.orthographicSize = Mathf.Clamp(Camera.main.orthographicSize, minSize, maxSize);
-            touch0 = Input.GetTouch(0).position;
-            touch1 = Input.GetTouch(1).position;
-            origDistance = Vector2.Distance(touch0, touch1);
+            whereCameraShouldBe = target.position + generalOffset;
+            transform.position = Vector3.Lerp(transform.position, whereCameraShouldBe, 1 / laziness);
 
         }
         else
         {
-            first = true;
+            if (!warningAlreadyShown)
+            {
+                Debug.Log("Warning: You should specify a target in the simpleCamFollow script.", gameObject);
+                warningAlreadyShown = true;
+            }
         }
 
-      /*  GameObject.Find("Canvas").transform.Find("Original").GetComponent<Text>().text = "Orig: " + origDistance;
-        GameObject.Find("Canvas").transform.Find("Current").GetComponent<Text>().text = "Cur: " + currentDistance;
-        GameObject.Find("Canvas").transform.Find("Difference").GetComponent<Text>().text = "Dif: " + Mathf.Abs(currentDistance - origDistance);
-        GameObject.Find("Canvas").transform.Find("Size").GetComponent<Text>().text = "Size: " + Camera.main.orthographicSize;*/
+        if (Input.mouseScrollDelta.y > 0)
+            Camera.main.fieldOfView -= zoomSpeed;
+        else if(Input.mouseScrollDelta.y < 0)
+            Camera.main.fieldOfView += zoomSpeed;
+
     }
 }

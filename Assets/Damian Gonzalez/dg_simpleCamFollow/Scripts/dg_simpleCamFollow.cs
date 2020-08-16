@@ -23,10 +23,6 @@ public class dg_simpleCamFollow : MonoBehaviour
             whereCameraShouldBe = target.position + generalOffset;
             transform.position = Vector3.Lerp(transform.position, whereCameraShouldBe, 1 / laziness);
 
-           // Quaternion lookOnLook =Quaternion.LookRotation(target.position - transform.position);
-
-          //  transform.rotation =Quaternion.Slerp(transform.rotation, lookOnLook, 1.0f / lookLaziness);
-
         } else {
             if (!warningAlreadyShown) {
                 Debug.Log("Warning: You should specify a target in the simpleCamFollow script.", gameObject);

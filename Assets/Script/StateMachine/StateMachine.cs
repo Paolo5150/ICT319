@@ -10,6 +10,7 @@ public class StateMachine<T> where T : State
 
     public void SetState(T newState)
     {
+
         if (currentState != null)
             currentState.OnExit();
 

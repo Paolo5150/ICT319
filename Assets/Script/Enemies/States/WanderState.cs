@@ -17,7 +17,6 @@ public class WanderState : EnemyState
     IEnumerator LookForRandomSpot()
     {
         isLookingForSpot = true;
-        Debug.Log("Looking for random spot and going there");
         yield return new WaitForSeconds(2);
         Vector3 randomDirection = Random.insideUnitSphere * 100;
         NavMesh.SamplePosition(personalityObj.enemyObj.transform.position + randomDirection, out NavMeshHit hit, 100, 1);
@@ -29,7 +28,6 @@ public class WanderState : EnemyState
     public override void OnEnter()
     {
         base.OnEnter();
-        Debug.Log("Enter wander");
         isLookingForSpot = false;
         personalityObj.enemyObj.navigator.UseWalkSpeed();
         personalityObj.enemyObj.navigator.SetOnDestinationReachedListener(() =>
@@ -40,7 +38,6 @@ public class WanderState : EnemyState
         personalityObj.enemyObj.StopAllCoroutines();
         personalityObj.enemyObj.StartCoroutine(LookForRandomSpot());
         personalityObj.enemyObj.enemySight.StartLookingForPlayer();
-
 
     }
     public override void Update()
@@ -57,7 +54,6 @@ public class WanderState : EnemyState
 
         });
 
-        Debug.Log("OnExit wander");
 
     }
 }

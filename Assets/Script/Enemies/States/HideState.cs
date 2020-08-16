@@ -7,14 +7,21 @@ public class HideState : EnemyState
 {
     public bool doneHiding { get; private set; }
     public bool isHiding { get; private set; }
+
+    public bool useSosIcon = false;
     bool canStartTimer;
     float safeRange = 10;
     float secondsToQuitState = 6.0f;
     float timer = 0;
     int wallLayer;
+
+    Sprite sosSprite;
+    Sprite hideSprite;
     public HideState(Personality e) : base(e)
     {
-        stateImageSprite = Resources.Load<Sprite>("StateIcons\\hide");
+        hideSprite = Resources.Load<Sprite>("StateIcons\\hide");
+        sosSprite = Resources.Load<Sprite>("StateIcons\\sos");
+
         wallLayer = LayerMask.GetMask("Wall");
     }
 
@@ -24,8 +31,11 @@ public class HideState : EnemyState
 
     public override void OnEnter()
     {
+        if (useSosIcon)
+            stateImageSprite = sosSprite;
+        else
+            stateImageSprite = hideSprite;
         base.OnEnter();
-      //  personalityObj.enemyObj.StopAllCoroutines();
         var obstacles = GameManager.Instance.GetObstacles();
 
         personalityObj.enemyObj.navigator.SetOnDestinationReachedListener(()=> {
@@ -62,6 +72,34 @@ public class HideState : EnemyState
         }
     }
 
+   
+    public override void Update()
+    {
+        base.Update();
+        if(!doneHiding && canStartTimer)
+        {
+            timer += Time.deltaTime;
+            if (timer >= secondsToQuitState)
+            {
+                doneHiding = true;
+                timer = 0;
+            }
+        }
+
+        //Shoot at random in a state of panic!
+        if (Random.Range(0, 100) < 5 && isHiding)
+            personalityObj.enemyObj.rifle.Shoot(personalityObj.enemyObj.shootRate, personalityObj.enemyObj.gameObject, personalityObj.enemyObj.damageGiven);
+ 
+
+    }
+    public override void OnExit()
+    {
+
+        personalityObj.enemyObj.navigator.SetOnDestinationReachedListener(() => {
+
+        });
+    }
+
     private bool LookAndHIde(List<Vector3> obstacles, bool allowCrossPath)
     {
         foreach (Vector3 pos in obstacles)
@@ -69,14 +107,14 @@ public class HideState : EnemyState
             Vector3 toPlayer = Player.Instance.transform.position - pos;
             Vector3 enemyToPlayer = Player.Instance.transform.position - personalityObj.enemyObj.transform.position;
             Vector3 enemyToOBstacle = pos - personalityObj.enemyObj.transform.position;
-            if (toPlayer.magnitude > safeRange )
+            if (toPlayer.magnitude > safeRange)
             {
                 bool directionOk;
                 if (allowCrossPath)
                     directionOk = true;
                 else
                     directionOk = Vector3.Dot(enemyToPlayer.normalized, enemyToOBstacle.normalized) < 0;
-                if(directionOk)
+                if (directionOk)
                 {
                     //Look for hiding spot in that area
                     NavMesh.SamplePosition(pos, out NavMeshHit hit, 100, 1);
@@ -90,33 +128,11 @@ public class HideState : EnemyState
                         isHiding = true;
                         return true;
                     }
-                }       
+                }
             }
         }
 
         return false;
 
-    }
-    public override void Update()
-    {
-        base.Update();
-        if(!doneHiding && canStartTimer)
-        {
-            timer += Time.deltaTime;
-            if (timer >= secondsToQuitState)
-            {
-                doneHiding = true;
-                timer = 0;
-            }
-        }
- 
-
-    }
-    public override void OnExit()
-    {
-
-        personalityObj.enemyObj.navigator.SetOnDestinationReachedListener(() => {
-
-        });
     }
 }

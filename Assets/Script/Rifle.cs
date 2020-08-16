@@ -5,7 +5,7 @@ using UnityEngine;
 public class Rifle : MonoBehaviour
 {
     // Start is called before the first frame update
-    LineRenderer lineRenderer;
+    public LineRenderer lineRenderer;
     Transform shootPoint;
     bool isShooting = false;
 
@@ -24,31 +24,49 @@ public class Rifle : MonoBehaviour
         lineRenderer.enabled = true;
         lineRenderer.SetPosition(0, shootPoint.position);
 
-        yield return new WaitForSeconds(fireRate);
+        yield return new WaitForSeconds(0.001f);
         lineRenderer.enabled = false;
         yield return new WaitForSeconds(fireRate);
 
         isShooting = false;
     }
 
-    public RaycastHit? Shoot(float fireRate, GameObject from, float damage)
+    public GameObject Aim()
     {
         RaycastHit hit;
+        Ray shootRay = new Ray(transform.position, -transform.forward);
+        if (Physics.Raycast(shootRay, out hit, 500, shootableMask))
+        {
+            MonoBehaviour[] mono = hit.collider.gameObject.GetComponents<MonoBehaviour>();
+            lineRenderer.SetPosition(1, new Vector3(hit.collider.transform.position.x, shootPoint.position.y, hit.collider.transform.position.z));
+            return hit.collider.gameObject;
+        }
+
+        return null;
+    }
+
+    public GameObject Shoot(float fireRate, GameObject from, float damage)
+    {
+        GameObject hit;
         if (!isShooting)
         {
+            hit = Aim();
             StopAllCoroutines();
             StartCoroutine(FireEffect(fireRate));
-            Ray shootRay = new Ray(transform.position, -transform.forward);
-            if(Physics.Raycast(shootRay, out hit ,500, shootableMask))
+            if(hit != null)
             {
-                MonoBehaviour mono = hit.collider.gameObject.GetComponent<MonoBehaviour>();
+                MonoBehaviour[] mono = hit.GetComponents<MonoBehaviour>();
 
-                lineRenderer.SetPosition(1, new Vector3(hit.collider.transform.position.x, shootPoint.position.y, hit.collider.transform.position.z));
-                if (mono is IShootable)
+                lineRenderer.SetPosition(1, new Vector3(hit.transform.position.x, shootPoint.position.y, hit.transform.position.z));
+                foreach(MonoBehaviour m in mono)
                 {
-                    IShootable shootable = (IShootable)mono;
-                    shootable.OnGetShot(from, damage);
+                    if (m is IShootable)
+                    {
+                        IShootable shootable = (IShootable)m;
+                        shootable.OnGetShot(from, damage);
+                    }
                 }
+    
                 return hit;
             }
            

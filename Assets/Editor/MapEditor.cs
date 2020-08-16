@@ -226,7 +226,7 @@ public class MapEditor : EditorWindow
                         bool found = objectsArray["Enemy"].Exists((Vector3 v) => { return v.x == pos.x && v.z == pos.z; });
                         if (!found)
                         {
-                            GameObject g = (GameObject)Instantiate(Resources.Load("Prefab/Enemy"), new Vector3(currentTile.transform.position.x, 0.6f, currentTile.transform.position.z), ghost.transform.rotation);
+                           /* GameObject g = (GameObject)Instantiate(Resources.Load("Prefab/Enemy"), new Vector3(currentTile.transform.position.x, 0.6f, currentTile.transform.position.z), ghost.transform.rotation);
                             int count = GameObject.FindGameObjectsWithTag("Enemy").Count() - 1;
                             objectsArray["Enemy"].Add(pos);
                             g.transform.SetParent(GameObject.Find("Enemies").transform);
@@ -245,7 +245,7 @@ public class MapEditor : EditorWindow
                             AssetDatabase.CreateAsset(g.GetComponent<Enemy>().patrolSO, "Assets/Resources/Maps/Level_" + mapSaveName + "/Enemies/Enemy_" + GUID.Generate() + ".asset");
                             EditorUtility.SetDirty(g.GetComponent<Enemy>().patrolSO);
                             AssetDatabase.SaveAssets();
-
+                            */
                         }
 
                     }
@@ -288,7 +288,7 @@ public class MapEditor : EditorWindow
                     currentTile.GetComponent<FloorTile>().IsWalkable = false;
                 else if (objectType == (int)PlacebleObjects.Enemy)
                 {
-                    Vector3 pos = ghost.transform.position;
+                 /*   Vector3 pos = ghost.transform.position;
 
                     if (!objectsArray.ContainsKey("Enemy"))
                         objectsArray.Add("Enemy", new List<Vector3>());
@@ -306,7 +306,7 @@ public class MapEditor : EditorWindow
                             AssetDatabase.Refresh();
                         }
                         
-                    }
+                    }*/
 
                 }
             }
