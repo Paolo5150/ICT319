@@ -9,6 +9,8 @@ public class Beserk : Personality
     InvestigateState investigationState;
     Sprite qMark;
 
+    float shootTimer = 0;
+
     public Beserk(Enemy e) : base(e)
     {
         Init();
@@ -35,6 +37,7 @@ public class Beserk : Personality
             {
                 investigationState.waitTime = 0;
                 investigationState.investigationPoint = Player.Instance.transform.position;
+                shootTimer = 15.0f;
                 return true;
             }
             return false;
@@ -50,13 +53,13 @@ public class Beserk : Personality
 
 
         //Beserk will respond to alarm
-        Coward.OnAlarmSent += GoInsestigateSOS;
+        Enemy.OnAlarmSent += GoInsestigateSOS;
         stateMachine.SetState(wanderState);
     }
 
     public override void OnObjDisable()
     {
-        Coward.OnAlarmSent -= GoInsestigateSOS;
+        Enemy.OnAlarmSent -= GoInsestigateSOS;
 
     }
 
@@ -77,6 +80,11 @@ public class Beserk : Personality
     public override void Update()
     {
         base.Update();
+        if(shootTimer > 0)
+        {
+            enemyObj.rifle.Shoot(enemyObj.shootRate, enemyObj.gameObject, enemyObj.damageGiven);
+            shootTimer -= Time.deltaTime;
+        }
     }
 
 

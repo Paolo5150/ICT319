@@ -98,13 +98,13 @@ public class Soldier : Personality
 
 
         //Beserk will respond to alarm
-        Coward.OnAlarmSent += GoInsestigateSOS;
+        Enemy.OnAlarmSent += GoInsestigateSOS;
         stateMachine.SetState(wanderState);
     }
 
     public override void OnObjDisable()
     {
-        Coward.OnAlarmSent -= GoInsestigateSOS;
+        Enemy.OnAlarmSent -= GoInsestigateSOS;
 
     }
 
@@ -154,6 +154,8 @@ public class Soldier : Personality
     public override void OnPlayerSeen(Vector3 pPosition)
     {
         base.OnPlayerSeen(pPosition);
+        Enemy.TriggerAlarm(pPosition);
+
         if (enemyObj.health.GetHealth() >= minHealthForRetreat)
         {
             GameObject aimingAt = enemyObj.rifle.Aim();

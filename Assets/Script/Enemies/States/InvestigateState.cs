@@ -67,7 +67,7 @@ public class InvestigateState : EnemyState
             yield return null;
 
         }
-        yield return new WaitForSeconds(3);
+        yield return new WaitForSeconds(2);
 
         rotateTimer = Random.Range(1,3);
         while (rotateTimer > 0)

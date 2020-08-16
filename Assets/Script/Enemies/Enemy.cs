@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour, IShootable
 {
-    public GameObject explosion;
+    public delegate void SendAlarm(Vector3 playerSightPosition);
+    public static event SendAlarm OnAlarmSent;
+
     public enum PersonalityEnum
     {
         BESERK,
@@ -66,6 +68,12 @@ public class Enemy : MonoBehaviour, IShootable
 
     }
 
+    public static void TriggerAlarm(Vector3 playerPos)
+    {
+        if (OnAlarmSent != null)
+            OnAlarmSent(playerPos);
+    }
+
     void OnPlayerDeath()
     {
         if (personality != null)
@@ -79,7 +87,6 @@ public class Enemy : MonoBehaviour, IShootable
         stateIcon.Init();
         navigator = GetComponent<Navigator>();
         navigator.Init();
-        explosion.GetComponent<ExplosionEffect>().Init();
 
         health = new Health();
         rifle = GetComponentInChildren<Rifle>();

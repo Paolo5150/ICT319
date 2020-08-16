@@ -94,6 +94,7 @@ public class GameManager : MonoBehaviour
         var allEnemies = GameObject.FindGameObjectsWithTag("Enemy");
         foreach(GameObject g in allEnemies)
             g.GetComponent<Enemy>().Init();
+
             navMeshSurface.BuildNavMesh();
     }
 

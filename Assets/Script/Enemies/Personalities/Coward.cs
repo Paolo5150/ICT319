@@ -4,8 +4,7 @@ using UnityEngine;
 
 public class Coward : Personality
 {
-    public delegate void SendAlarm(Vector3 playerSightPosition);
-    public static event SendAlarm OnAlarmSent;
+
 
     WanderState wanderState;
     HideState hideState;
@@ -42,8 +41,7 @@ public class Coward : Personality
     public override void OnPlayerSeen(Vector3 playerPos)
     {
 
-        if (OnAlarmSent != null)
-            OnAlarmSent(Player.Instance.transform.position);
+        Enemy.TriggerAlarm(playerPos);
         hideState.useSosIcon = true;
         stateMachine.SetState(hideState);
     }
@@ -52,8 +50,7 @@ public class Coward : Personality
     {
         if(from.gameObject.tag.Equals("Player"))
         {
-            if (OnAlarmSent != null)
-                OnAlarmSent(enemyObj.transform.position);
+            Enemy.TriggerAlarm(enemyObj.transform.position);
             hideState.useSosIcon = true;
             stateMachine.SetState(hideState);
         }

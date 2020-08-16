@@ -49,7 +49,7 @@ public class EnemySight : MonoBehaviour
                     onPlayerSighted();
             }
 
-            yield return new WaitForSeconds(0.4f);
+            yield return new WaitForSeconds(0.01f);
         }
     }
     public bool IsPlayerInSight()
