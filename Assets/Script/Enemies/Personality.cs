@@ -5,6 +5,8 @@ using UnityEngine;
 public abstract class Personality
 {
     public StateMachine<EnemyState> stateMachine;
+
+
     public Personality(Enemy e)
     {
         enemyObj = e;

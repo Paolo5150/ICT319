@@ -7,6 +7,9 @@ public class Enemy : MonoBehaviour, IShootable
     public delegate void SendAlarm(Vector3 playerSightPosition, GameObject triggeredBy);
     public static event SendAlarm OnAlarmSent;
 
+    public float damageGiven;
+    public float shootRate = 0.1f;
+
     public enum PersonalityEnum
     {
         BESERK,
@@ -25,8 +28,7 @@ public class Enemy : MonoBehaviour, IShootable
 
     Sprite sosSprite;
  
-    public float damageGiven;
-    public float shootRate = 0.1f;
+
 
     public Vector3 playerLastKnownPosition;
     public StateIcon stateIcon;

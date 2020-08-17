@@ -51,7 +51,8 @@ public class StateIcon : MonoBehaviour
         }
         else
         {
-            spritesQ.Enqueue(sprite);
+            if(!spritesQ.Contains(sprite))
+                spritesQ.Enqueue(sprite);
 
         }
 

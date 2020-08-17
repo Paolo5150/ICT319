@@ -11,7 +11,6 @@ public class Soldier : Personality
     HideState hideState;
 
     float minHealthForRetreat = 35.0f;
-
     float alarmTimer = 0;
 
     public Soldier(Enemy e) : base(e)
@@ -27,7 +26,6 @@ public class Soldier : Personality
         investigationState = new InvestigateState(this);
         retreatState = new Retreat(this, minHealthForRetreat);
         hideState = new HideState(this);
-
 
         shootState.AddTransition(() =>
         {
@@ -110,9 +108,11 @@ public class Soldier : Personality
 
     void GoInsestigateSOS(Vector3 pos, GameObject triggeredBy)
     {
-        if(triggeredBy == enemyObj.gameObject)
+        if(triggeredBy == enemyObj.gameObject ||
+            stateMachine.GetCurrentState() == retreatState ||
+               stateMachine.GetCurrentState() == hideState)
         {
-            Debug.Log("Received alarm, but triggered by me!");
+            Debug.Log("Received alarm, but will ignore!");
             return;
         }
         investigationState.waitBeforeGoingToPoint = 0.0f;

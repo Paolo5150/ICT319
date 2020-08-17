@@ -18,7 +18,6 @@ public class Coward : Personality
         base.Init();
         wanderState = new WanderState(this);
         hideState = new HideState(this);
-               
 
         hideState.AddTransition(() => 
         {
