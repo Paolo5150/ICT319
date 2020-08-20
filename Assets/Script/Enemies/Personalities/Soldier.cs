@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class Soldier : Personality
 {
@@ -13,6 +14,7 @@ public class Soldier : Personality
     float minHealthForRetreat = 35.0f;
     float alarmTimer = 0;
 
+    bool hasReconsidered = false;
     public Soldier(Enemy e) : base(e)
     {
         Init();
@@ -127,12 +129,31 @@ public class Soldier : Personality
             stateMachine.SetState(investigationState);
     }
 
+    IEnumerator Reconsider()
+    {
+        hasReconsidered = true;
+        Vector3 target = enemyObj.navigator.navAgent.destination;
+        enemyObj.navigator.Stop();
+        Player.Instance.bomb.Carve(true);
+        stateMachine.SetState(wanderState);
+
+        yield return new WaitForSeconds(1.0f);
+        hasReconsidered = false;
+    }
+
     public override void Update()
     {
         base.Update();
         if (alarmTimer > 0)
         {
             alarmTimer -= Time.deltaTime;
+        }
+
+        float distToBomb = enemyObj.enemySight.IsObjectInSight(Player.Instance.bomb.gameObject);
+        if (distToBomb != -1 && distToBomb <= 2)
+        {
+            enemyObj.StartCoroutine(Reconsider());
+
         }
 
     }

@@ -13,6 +13,7 @@ public class Player : MonoBehaviour, IShootable
 
     private static Player _instance;
 
+    public ExplosionEffect bomb;
 
     public static Player Instance
     {
@@ -87,6 +88,13 @@ public class Player : MonoBehaviour, IShootable
                 shootTimer += Time.deltaTime;
   
         }
+        else if(Input.GetMouseButton(1))
+        {
+            bomb.Drop(transform.position);
+
+        }
+
+
     }
 
     // Update is called once per frame

@@ -67,6 +67,11 @@ public class GameManager : MonoBehaviour
         Application.Quit();
     }
 
+    public void RecreateNavPath()
+    {
+        navMeshSurface.BuildNavMesh();
+    }
+
     public void LoadMap()
     {
         currentMap = (MapSO)Resources.Load("Maps\\Level_" + mapLoad + "\\" + mapLoad);

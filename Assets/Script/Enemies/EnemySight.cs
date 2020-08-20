@@ -70,17 +70,40 @@ public class EnemySight : MonoBehaviour
             {
                 if (Physics.Raycast(rayToPlayer, out hit, viewRange))
                 {
-                    if (hit.transform.gameObject.name.Equals("Player"))
+                    if (hit.transform.gameObject.tag.Equals("Player"))
                     {
                         inSight = true;
                     }
                 }
-            }
-            
+            }            
         }
-        
-
-
         return inSight;
+    }
+
+    public float IsObjectInSight(GameObject obj)
+    {
+        float dist = -1;
+        Vector3 p = obj.transform.position;
+        p.y = transform.position.y;
+
+        Vector3 toObj = p - transform.position;
+        if (Vector3.Magnitude(toObj) <= viewRange)
+        {
+            rayToPlayer.origin = transform.position;
+            rayToPlayer.direction = toObj.normalized;
+            float angle = Vector3.Angle(transform.forward, toObj.normalized);
+
+            if (angle < FOV / 2.0)
+            {
+                if (Physics.Raycast(rayToPlayer, out hit, viewRange))
+                {
+                    if (hit.transform.gameObject == obj)
+                    {
+                        dist = Vector3.Magnitude(toObj);
+                    }
+                }
+            }
+        }
+        return dist;
     }
 }
