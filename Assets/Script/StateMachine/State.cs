@@ -18,7 +18,16 @@ public abstract class State
 
     }
 
+    public void AddTransitionDynamicState(Func<bool> condition, Func<State> funcToState)
+    {
+        if (transitionsDynamicState == null)
+            transitionsDynamicState = new Dictionary<Func<bool>, Func<State>>();
+
+        transitionsDynamicState.Add(condition, funcToState);
+
+    }
     protected Dictionary<Func<bool>, State> transitions;
+    protected Dictionary<Func<bool>, Func<State>> transitionsDynamicState;
      
 
 }

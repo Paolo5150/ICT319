@@ -34,6 +34,23 @@ public class Enemy : MonoBehaviour, IShootable
     public StateIcon stateIcon;
     Personality personality;
     public Health health;
+
+    public void OnGetBombed(float damage)
+    {
+        if (health != null)
+        {
+            health.Add(-damage);
+            if (health.IsDead())
+            {
+                gameObject.SetActive(false);
+                personality = null;
+                // explosion.GetComponent<ExplosionEffect>().Trigger();
+            }
+        }
+
+        if (personality != null)
+            personality.OnGetBombed();
+    }
     public void OnGetShot(GameObject from, float damage)
     {
         if(health != null)

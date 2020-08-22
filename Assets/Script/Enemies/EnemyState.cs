@@ -29,6 +29,17 @@ public abstract class EnemyState : State
                 {
                     personalityObj.stateMachine.SetState((EnemyState)condition.Value);
                 }
+            }    
+        }
+
+        if(transitionsDynamicState != null)
+        {
+            foreach (KeyValuePair<Func<bool>, Func<State>> condition in transitionsDynamicState)
+            {
+                if (condition.Key())
+                {
+                    personalityObj.stateMachine.SetState((EnemyState)condition.Value());
+                }
             }
         }
 

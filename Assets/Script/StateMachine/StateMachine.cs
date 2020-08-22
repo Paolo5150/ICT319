@@ -8,15 +8,18 @@ public class StateMachine<T> where T : State
 
     T currentState;
 
+    public T previousState;
     public void SetState(T newState)
     {
 
         if (currentState != null)
             currentState.OnExit();
 
+        previousState = currentState;
         currentState = newState;
 
         currentState.OnEnter();
+
     }
 
     public void Update()

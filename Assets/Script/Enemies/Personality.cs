@@ -6,7 +6,6 @@ public abstract class Personality
 {
     public StateMachine<EnemyState> stateMachine;
 
-
     public Personality(Enemy e)
     {
         enemyObj = e;
@@ -31,6 +30,7 @@ public abstract class Personality
 
     public virtual void OnObjDisable() { }
     public virtual void OnGetShot(GameObject from) { }
+    public virtual void OnGetBombed() { }
 
     public virtual void OnTriggerEnter(Collider c) { }
     public Enemy enemyObj;

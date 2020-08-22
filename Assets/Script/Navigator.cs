@@ -70,7 +70,8 @@ public class Navigator : MonoBehaviour
         {
             posVec2.x = transform.position.x;
             posVec2.y = transform.position.z;
-            distance = Vector2.Distance(new Vector2(transform.position.x, transform.position.z), new Vector2(path[current].x, path[current].z));
+            if (current < path.Length - 1)
+                distance = Vector2.Distance(new Vector2(transform.position.x, transform.position.z), new Vector2(path[current].x, path[current].z));
             if (distance < 0.1)
             {
                 if (current < path.Length - 1)
@@ -86,8 +87,12 @@ public class Navigator : MonoBehaviour
             }
             else
             {
+                if (current < path.Length - 1)
+                {
+
                 transform.LookAt(new Vector3(path[current].x, transform.position.y, path[current].z));
                 transform.position = Vector3.MoveTowards(transform.position, new Vector3(path[current].x, transform.position.y, path[current].z), Time.deltaTime * currentSpeed);
+                }
             }
             yield return null;
         }
@@ -97,21 +102,38 @@ public class Navigator : MonoBehaviour
     {
         navAgent.enabled = true;
         navAgent.isStopped = true;
-        path = new NavMeshPath();
-        navAgent.CalculatePath(end, path);
-        doneChecking = false;
 
-        isMoving = true;
-        StartCoroutine(Move(path.corners));
         yield return null;
 
+    }
+
+    IEnumerator CheckDistance()
+    {
+        yield return new WaitForSeconds(1.0f);
+        while(navAgent.remainingDistance > 0.1)
+        {
+            yield return null;
+        }
+
+        navAgent.isStopped = true;
+        if (onDestinationReachedListener != null)
+            onDestinationReachedListener();
+
+        Debug.Log("Destination reached!");
     }
 
     public void Go(Vector3 end)
     {
         doneChecking = true;
         StopAllCoroutines();
-        StartCoroutine(StartAgent(end));
+        isMoving = true;
+
+        // StartCoroutine(StartAgent(end));
+        navAgent.enabled = true;
+        navAgent.speed = currentSpeed;
+        navAgent.destination = end;
+        navAgent.isStopped = false;
+        StartCoroutine(CheckDistance());
 
 
     }

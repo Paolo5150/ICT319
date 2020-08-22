@@ -7,6 +7,7 @@ public class Beserk : Personality
     WanderState wanderState;
     ShootState shootState;
     InvestigateState investigationState;
+    StunnedState stunnedState;
     Sprite qMark;
 
     float shootTimer = 0;
@@ -22,6 +23,7 @@ public class Beserk : Personality
         wanderState = new WanderState(this);
         shootState = new ShootState(this, enemyObj.shootRate);
         investigationState = new InvestigateState(this);
+        stunnedState = new StunnedState(this);
 
         qMark = Resources.Load<Sprite>("StateIcons\\what");
 
@@ -50,6 +52,15 @@ public class Beserk : Personality
         investigationState.AddTransition(() => {
             return investigationState.done;
         }, wanderState);
+
+        stunnedState.AddTransitionDynamicState(() =>
+        {
+            return !stunnedState.isStunned;
+        },
+        () =>
+        {
+            return stateMachine.previousState;
+        });
 
 
         //Beserk will respond to alarm
@@ -86,6 +97,12 @@ public class Beserk : Personality
             enemyObj.rifle.Shoot(enemyObj.shootRate, enemyObj.gameObject, enemyObj.damageGiven);
             shootTimer -= Time.deltaTime;
         }
+    }
+
+    public override void OnGetBombed()
+    {
+        if(stateMachine.GetCurrentState() != stunnedState)
+        stateMachine.SetState(stunnedState);
     }
 
 

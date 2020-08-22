@@ -10,11 +10,12 @@ public class Soldier : Personality
     InvestigateState investigationState;
     Retreat retreatState;
     HideState hideState;
+    BombAvoid bombAvoidState;
 
     float minHealthForRetreat = 35.0f;
     float alarmTimer = 0;
 
-    bool hasReconsidered = false;
+
     public Soldier(Enemy e) : base(e)
     {
         Init();
@@ -28,6 +29,7 @@ public class Soldier : Personality
         investigationState = new InvestigateState(this);
         retreatState = new Retreat(this, minHealthForRetreat);
         hideState = new HideState(this);
+        bombAvoidState = new BombAvoid(this);
 
         shootState.AddTransition(() =>
         {
@@ -96,8 +98,13 @@ public class Soldier : Personality
             return false;
         }, retreatState);
 
+        bombAvoidState.AddTransitionDynamicState(() =>
+        {
+            return bombAvoidState.readyToGo;
+        }, 
+        ()=> { return stateMachine.previousState; });
 
-        //Beserk will respond to alarm
+        //Soldier will respond to alarm
         Enemy.OnAlarmSent += GoInsestigateSOS;
         stateMachine.SetState(wanderState);
     }
@@ -129,17 +136,7 @@ public class Soldier : Personality
             stateMachine.SetState(investigationState);
     }
 
-    IEnumerator Reconsider()
-    {
-        hasReconsidered = true;
-        Vector3 target = enemyObj.navigator.navAgent.destination;
-        enemyObj.navigator.Stop();
-        Player.Instance.bomb.Carve(true);
-        stateMachine.SetState(wanderState);
 
-        yield return new WaitForSeconds(1.0f);
-        hasReconsidered = false;
-    }
 
     public override void Update()
     {
@@ -152,7 +149,11 @@ public class Soldier : Personality
         float distToBomb = enemyObj.enemySight.IsObjectInSight(Player.Instance.bomb.gameObject);
         if (distToBomb != -1 && distToBomb <= 2)
         {
-            enemyObj.StartCoroutine(Reconsider());
+            if (stateMachine.GetCurrentState() != bombAvoidState && Player.Instance.bomb.gameObject.transform.position != bombAvoidState.lastBombPosition)
+            {
+                bombAvoidState.lastBombPosition = Player.Instance.bomb.gameObject.transform.position;
+                stateMachine.SetState(bombAvoidState);
+            }
 
         }
 

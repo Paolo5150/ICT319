@@ -6,7 +6,8 @@ using UnityEngine.UI;
 public class MainCanvas : MonoBehaviour
 {
     Slider playerHealthbar;
-    GameObject playerHUD;
+    [HideInInspector]
+    public GameObject playerHUD;
     GameObject gameOverPanel;
     private static MainCanvas _instance;
 
