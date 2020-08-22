@@ -92,7 +92,7 @@ public class Beserk : Personality
     {
         base.Update();
         //Will shot for a certain amount of time after losing sight of the player
-        if(shootTimer > 0)
+        if(shootTimer > 0 && stateMachine.GetCurrentState() != stunnedState)
         {
             enemyObj.rifle.Shoot(enemyObj.shootRate, enemyObj.gameObject, enemyObj.damageGiven);
             shootTimer -= Time.deltaTime;
