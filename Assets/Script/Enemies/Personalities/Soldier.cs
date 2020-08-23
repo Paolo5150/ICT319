@@ -115,17 +115,17 @@ public class Soldier : Personality
         ()=> { return stateMachine.previousState; });
 
         //Soldier will respond to alarm
-        Enemy.OnAlarmSent += GoInsestigateSOS;
+        Enemy.OnAlarmSent += GoInvestigateSOS;
         stateMachine.SetState(wanderState);
     }
 
     public override void OnObjDisable()
     {
-        Enemy.OnAlarmSent -= GoInsestigateSOS;
+        Enemy.OnAlarmSent -= GoInvestigateSOS;
 
     }
 
-    void GoInsestigateSOS(Vector3 pos, GameObject triggeredBy)
+    void GoInvestigateSOS(Vector3 pos, GameObject triggeredBy)
     {
         if(triggeredBy == enemyObj.gameObject ||
             stateMachine.GetCurrentState() == retreatState ||
@@ -213,7 +213,7 @@ public class Soldier : Personality
             Diagnostic.Instance.AddLog(enemyObj.gameObject, "Saw the player! Sending SOS");
 
             enemyObj.TriggerAlarm(pPosition);
-            alarmTimer = 10.0f;
+            alarmTimer = 5.0f;
         }
 
         if (enemyObj.health.GetHealth() >= minHealthForRetreat)

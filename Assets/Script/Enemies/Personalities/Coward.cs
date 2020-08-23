@@ -21,7 +21,12 @@ public class Coward : Personality
 
         hideState.AddTransition(() => 
         {
-            return hideState.doneHiding;
+            if(hideState.doneHiding)
+            {
+                Diagnostic.Instance.AddLog(enemyObj.gameObject, "Ok, done hiding");
+                return true;
+            }
+            return false;
         }, wanderState);
 
         stateMachine.SetState(wanderState);
@@ -37,6 +42,8 @@ public class Coward : Personality
     {
 
         enemyObj.TriggerAlarm(playerPos);
+        Diagnostic.Instance.AddLog(enemyObj.gameObject, "Saw the player, going to hide!");
+
         stateMachine.SetState(hideState);
     }
 
@@ -44,6 +51,8 @@ public class Coward : Personality
     {
         if(from.gameObject.tag.Equals("Player"))
         {
+            Diagnostic.Instance.AddLog(enemyObj.gameObject, "I got shot! Sending SOS and going to hide!");
+
             enemyObj.TriggerAlarm(enemyObj.transform.position);
             stateMachine.SetState(hideState);
         }
@@ -63,7 +72,10 @@ public class Coward : Personality
         {
 
             if (!hideState.isHiding)
-            stateMachine.SetState(hideState);
+            {
+                Diagnostic.Instance.AddLog(enemyObj.gameObject, "Heard the player, going to hide!");
+                stateMachine.SetState(hideState);
+            }
         }
     }
 }

@@ -29,7 +29,13 @@ public class Beserk : Personality
 
         wanderState.AddTransition(() =>
         {
-            return enemyObj.enemySight.IsPlayerInSight();
+            if(enemyObj.enemySight.IsPlayerInSight())
+            {
+                Diagnostic.Instance.AddLog(enemyObj.gameObject, "See the player, shooting!");
+
+                return true;
+            }
+            return false;
 
         }, shootState);
 
@@ -40,13 +46,21 @@ public class Beserk : Personality
                 investigationState.waitBeforeGoingToPoint = 0;
                 investigationState.investigationPoint = Player.Instance.transform.position;
                 shootTimer = 15.0f;
+                Diagnostic.Instance.AddLog(enemyObj.gameObject, "Lost sight of player, going to check last known psition (and keep shooting, why not)");
+
                 return true;
             }
             return false;
         }, investigationState);
 
         investigationState.AddTransition(() => {
-            return enemyObj.enemySight.IsPlayerInSight();
+            if (enemyObj.enemySight.IsPlayerInSight())
+            {
+                Diagnostic.Instance.AddLog(enemyObj.gameObject, "See the player, shooting!");
+
+                return true;
+            }
+            return false;
         },shootState);
 
         investigationState.AddTransition(() => {
@@ -82,10 +96,16 @@ public class Beserk : Personality
         if (stateMachine.GetCurrentState() == investigationState)
         {
             if (!investigationState.isInvestigating)
+            {
+                Diagnostic.Instance.AddLog(enemyObj.gameObject, "Received an SOS, going to check");
                 stateMachine.SetState(investigationState);
+            }
         }
         else
+        {
+            Diagnostic.Instance.AddLog(enemyObj.gameObject, "Received an SOS, going to check");
             stateMachine.SetState(investigationState);
+        }
     }
 
     public override void Update()
@@ -102,7 +122,11 @@ public class Beserk : Personality
     public override void OnGetBombed()
     {
         if(stateMachine.GetCurrentState() != stunnedState)
-        stateMachine.SetState(stunnedState);
+        {
+            Diagnostic.Instance.AddLog(enemyObj.gameObject, "Great, stepped on a bomb...");
+
+            stateMachine.SetState(stunnedState);
+        }
     }
 
 
@@ -112,6 +136,8 @@ public class Beserk : Personality
         {
             if (stateMachine.GetCurrentState() != shootState && !investigationState.isInvestigating)
             {
+                Diagnostic.Instance.AddLog(enemyObj.gameObject, "Got shot by player, going to check");
+
                 investigationState.investigationPoint = from.transform.position;
                 stateMachine.SetState(investigationState);
             }
@@ -139,6 +165,8 @@ public class Beserk : Personality
 
             if (toPlayer < enemyObj.enemySight.hearRange)
             {
+                Diagnostic.Instance.AddLog(enemyObj.gameObject, "Heard the player shooting nearby, going to check");
+
                 enemyObj.stateIcon.EnableTemporarily(qMark);
                 enemyObj.navigator.Stop();
                 investigationState.investigationPoint = shotPosition;
