@@ -13,6 +13,7 @@ public class BombAvoid : EnemyState
     public BombAvoid(Personality e) : base(e)
     {
         stateImageSprite = Resources.Load<Sprite>("StateIcons\\what");
+        stateName = "Bomb Avoid";
     }
 
     IEnumerator FindRoute()

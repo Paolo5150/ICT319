@@ -11,6 +11,7 @@ public class WanderState : EnemyState
     public WanderState(Personality e) : base(e)
     {
         stateImageSprite = Resources.Load<Sprite>("StateIcons\\wander");
+        stateName = "Wander";
 
     }
 
@@ -47,6 +48,7 @@ public class WanderState : EnemyState
     }
     public override void OnExit()
     {
+        base.OnExit();
         personalityObj.enemyObj.StopCoroutine(LookForRandomSpot());
         personalityObj.enemyObj.navigator.Stop();
         personalityObj.enemyObj.navigator.SetOnDestinationReachedListener(() =>

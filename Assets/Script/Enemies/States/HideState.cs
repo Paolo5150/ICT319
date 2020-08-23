@@ -18,6 +18,7 @@ public class HideState : EnemyState
     {
         stateImageSprite = Resources.Load<Sprite>("StateIcons\\hide");
         wallLayer = LayerMask.GetMask("Wall");
+        stateName = "Hiding";
 
     }
 

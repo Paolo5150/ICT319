@@ -13,6 +13,7 @@ public class ShootState : EnemyState
     {
         this.shootRate = shootRate;
         stateImageSprite = Resources.Load<Sprite>("StateIcons\\shoot");
+        stateName = "Shooting";
 
     }
 

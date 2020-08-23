@@ -11,6 +11,8 @@ public class StunnedState : EnemyState
     public StunnedState(Personality e) : base(e)
     {
         stateImageSprite = Resources.Load<Sprite>("StateIcons\\stunned");
+        stateName = "Stunned";
+
     }
 
 

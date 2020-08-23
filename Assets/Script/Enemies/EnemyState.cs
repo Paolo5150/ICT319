@@ -14,6 +14,7 @@ public abstract class EnemyState : State
     public Sprite stateImageSprite;
     public override void OnEnter()
     {
+        Diagnostic.Instance.AddLog(personalityObj.enemyObj.gameObject,"Entering state " + stateName);
         if(stateImageSprite != null)
             personalityObj.enemyObj.stateIcon.EnableTemporarily(stateImageSprite);
 
@@ -44,7 +45,11 @@ public abstract class EnemyState : State
         }
 
     }
-    public override abstract void OnExit();
+    public override void OnExit()
+    {
+        Diagnostic.Instance.AddLog(personalityObj.enemyObj.gameObject, "Exiting state " + stateName);
+    }
+    public string stateName;
 
 
 }

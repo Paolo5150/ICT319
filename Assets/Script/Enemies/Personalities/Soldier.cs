@@ -37,6 +37,8 @@ public class Soldier : Personality
             {
                 investigationState.waitBeforeGoingToPoint = 0;
                 investigationState.investigationPoint = Player.Instance.transform.position;
+                Diagnostic.Instance.AddLog(enemyObj.gameObject, "Lost sight of player, going to check last known position");
+
                 return true;
             }
             return false;
@@ -54,6 +56,8 @@ public class Soldier : Personality
                 if (retreatState.playerLastKnowsPosition != null)
                     investigationState.investigationPoint = retreatState.playerLastKnowsPosition.Value;
 
+                Diagnostic.Instance.AddLog(enemyObj.gameObject, "Feeling better, go to check last investigation point");
+
                 return true;
             }
 
@@ -67,7 +71,10 @@ public class Soldier : Personality
             if (enemyObj.health.GetHealth() >= minHealthForRetreat)
             {
                 if (retreatState.playerLastKnowsPosition == null)
+                {
+                    Diagnostic.Instance.AddLog(enemyObj.gameObject, "Feeling better, go to back to wander");
                     return true;
+                }
             }
 
             return false;
@@ -79,6 +86,9 @@ public class Soldier : Personality
             if (enemyObj.health.GetHealth() < minHealthForRetreat)
             {
                 Vector3? closestPack = LookForHealthpack();
+                if(closestPack == null)
+                    Diagnostic.Instance.AddLog(enemyObj.gameObject, "Go a healthpack, but still feel crap, will go hide");
+
                 return closestPack == null;
             }
             return false;
@@ -122,6 +132,7 @@ public class Soldier : Personality
                stateMachine.GetCurrentState() == hideState)
         {
             Debug.Log("Received alarm, but will ignore!");
+            Diagnostic.Instance.AddLog(enemyObj.gameObject, "Received an SOS, but will ignore");
             return;
         }
         investigationState.waitBeforeGoingToPoint = 0.0f;
@@ -130,10 +141,16 @@ public class Soldier : Personality
         if (stateMachine.GetCurrentState() == investigationState)
         {
             if (!investigationState.isInvestigating)
+            {
+                Diagnostic.Instance.AddLog(enemyObj.gameObject, "Received an SOS, will go check");
                 stateMachine.SetState(investigationState);
+            }
         }
         else
+        {
+            Diagnostic.Instance.AddLog(enemyObj.gameObject, "Received an SOS, will go check");
             stateMachine.SetState(investigationState);
+        }
     }
 
 
@@ -151,6 +168,8 @@ public class Soldier : Personality
         {
             if (stateMachine.GetCurrentState() != bombAvoidState && Player.Instance.bomb.gameObject.transform.position != bombAvoidState.lastBombPosition)
             {
+                Diagnostic.Instance.AddLog(enemyObj.gameObject, "I see the bomb, will find alternative path");
+
                 bombAvoidState.lastBombPosition = Player.Instance.bomb.gameObject.transform.position;
                 stateMachine.SetState(bombAvoidState);
             }
@@ -176,6 +195,8 @@ public class Soldier : Personality
         {
             if (stateMachine.GetCurrentState() != shootState && !investigationState.isInvestigating)
             {
+                Diagnostic.Instance.AddLog(enemyObj.gameObject, "Got shot by player! I'll go check where the shot came from");
+
                 investigationState.investigationPoint = from.transform.position;
                 stateMachine.SetState(investigationState);
             }
@@ -189,6 +210,8 @@ public class Soldier : Personality
         if(alarmTimer <= 0.0f)
         {
             Debug.Log("Alarm triggered");
+            Diagnostic.Instance.AddLog(enemyObj.gameObject, "Saw the player! Sending SOS");
+
             enemyObj.TriggerAlarm(pPosition);
             alarmTimer = 10.0f;
         }
@@ -196,13 +219,24 @@ public class Soldier : Personality
         if (enemyObj.health.GetHealth() >= minHealthForRetreat)
         {
             if(stateMachine.GetCurrentState() != shootState)
+            {
+                Diagnostic.Instance.AddLog(enemyObj.gameObject, "Saw the player, shooting!");
+
                 stateMachine.SetState(shootState);      
+            }
         }
         else
         {
             retreatState.playerLastKnowsPosition = pPosition; //Remember player host position, so if he gets a health pack, will go check
 
             EvaluateRetreat();
+
+            if(stateMachine.previousState != hideState && stateMachine.GetCurrentState() == hideState)
+                Diagnostic.Instance.AddLog(enemyObj.gameObject, "Saw the player, but will go hide!");
+
+            if (stateMachine.previousState != retreatState && stateMachine.GetCurrentState() == retreatState)
+                Diagnostic.Instance.AddLog(enemyObj.gameObject, "Saw the player, but will go get healthpack!");
+
         }
     }
 
@@ -215,28 +249,31 @@ public class Soldier : Personality
 
     public override void OnPlayeShotFired(Vector3 shotPosition)
     {
+
         if (stateMachine.GetCurrentState() == investigationState)
             investigationState.waitBeforeGoingToPoint = 0.0f;
         else
             investigationState.waitBeforeGoingToPoint = 1.0f;
 
+        float toPlayer = (shotPosition - enemyObj.transform.position).magnitude;
+        if (toPlayer > enemyObj.enemySight.hearRange)
+            return;
+
+
         if (enemyObj.health.GetHealth() >= minHealthForRetreat)
         {
             if (stateMachine.GetCurrentState() != shootState && !investigationState.isInvestigating)
-            {
-                float toPlayer = (shotPosition - enemyObj.transform.position).magnitude;
+            {         
+                Diagnostic.Instance.AddLog(enemyObj.gameObject, "I heard the player shooting nearby, I'll go check out");
 
-                if (toPlayer < enemyObj.enemySight.hearRange)
-                {
-                    enemyObj.navigator.Stop();
-                    investigationState.investigationPoint = shotPosition;
-                    stateMachine.SetState(investigationState);
-
-                }
+                enemyObj.navigator.Stop();
+                investigationState.investigationPoint = shotPosition;
+                stateMachine.SetState(investigationState);
             }
         }
         else
         {
+
             retreatState.playerLastKnowsPosition = shotPosition; //Remember player host position, so if he gets a health pack, will go check
             EvaluateRetreat();
         }
@@ -288,12 +325,20 @@ public class Soldier : Personality
         {
             retreatState.closestPack = closestPack.Value;
             if(stateMachine.GetCurrentState() != retreatState)
-            stateMachine.SetState(retreatState);
+            {
+                Diagnostic.Instance.AddLog(enemyObj.gameObject, "I have low health, looking for healthpack");
+
+                stateMachine.SetState(retreatState);
+            }
         }
         else //Otherwise hide!
         {
             if(!hideState.isHiding)
-            stateMachine.SetState(hideState);
+            {
+                Diagnostic.Instance.AddLog(enemyObj.gameObject, "I have low health, no healthpack around, will hide");
+
+                stateMachine.SetState(hideState);
+            }
         }
     }
 }

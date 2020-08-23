@@ -16,6 +16,8 @@ public class InvestigateState : EnemyState
     public InvestigateState(Personality e) : base(e)
     {
         stateImageSprite = Resources.Load<Sprite>("StateIcons\\what");
+        stateName = "Investigate";
+
     }
 
     IEnumerator StartInvestigating()

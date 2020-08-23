@@ -10,10 +10,10 @@ public class Player : MonoBehaviour, IShootable
 
     public delegate void PlayerDeath();
     public static event PlayerDeath OnPlayerDeath;
+    public ExplosionEffect bomb;
 
     private static Player _instance;
 
-    public ExplosionEffect bomb;
 
     public static Player Instance
     {
@@ -102,6 +102,14 @@ public class Player : MonoBehaviour, IShootable
     {
         Move();
         Shoot();
+
+        if(Input.GetKeyDown(KeyCode.Space))
+        {
+            if (Time.timeScale != 0)
+                Time.timeScale = 0;
+            else
+                Time.timeScale = 1;
+        }
        
     }
 

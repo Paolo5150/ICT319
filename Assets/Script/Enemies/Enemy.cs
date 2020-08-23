@@ -10,6 +10,8 @@ public class Enemy : MonoBehaviour, IShootable
     public float damageGiven;
     public float shootRate = 0.1f;
 
+    public bool usingDiagnostic;
+
     public enum PersonalityEnum
     {
         BESERK,
@@ -32,7 +34,7 @@ public class Enemy : MonoBehaviour, IShootable
 
     public Vector3 playerLastKnownPosition;
     public StateIcon stateIcon;
-    Personality personality;
+    public Personality personality;
     public Health health;
 
     public void OnGetBombed(float damage)
@@ -123,8 +125,27 @@ public class Enemy : MonoBehaviour, IShootable
 
     private void Update()
     {
-        if(personality != null)
+        if (personality != null)
             personality.Update();
+
+
+        //Enable diagnostic
+        if (Input.GetMouseButtonDown(2))
+        { // if left button pressed...
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit))
+            {
+                if(!hit.collider.gameObject.tag.Equals("Enemy"))
+                    Diagnostic.Instance.SetEnabled(false);
+
+                if (hit.collider.gameObject == this.gameObject)
+                {
+                    Diagnostic.Instance.SetEnabled(true);
+                    Diagnostic.Instance.setReference(this.gameObject);
+                }
+            }
+        }
     }
 
     void OnPlayerShotFired()
@@ -156,5 +177,7 @@ public class Enemy : MonoBehaviour, IShootable
         if (personality != null)
             personality.OnTriggerEnter(c);
     }
+
+
 
 }
