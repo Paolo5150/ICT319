@@ -9,6 +9,8 @@ public class MainCanvas : MonoBehaviour
     [HideInInspector]
     public GameObject playerHUD;
     GameObject gameOverPanel;
+    [HideInInspector]
+    public PlayerHUD playerHUDScript;
     private static MainCanvas _instance;
 
     public static MainCanvas Instance
@@ -29,9 +31,11 @@ public class MainCanvas : MonoBehaviour
         }
     }
 
+
     public void Init()
     {
         playerHUD = transform.GetChild(0).gameObject;
+        playerHUDScript = playerHUD.GetComponent<PlayerHUD>();
         gameOverPanel = transform.GetChild(1).gameObject;
 
         playerHealthbar = playerHUD.GetComponentInChildren<Slider>();

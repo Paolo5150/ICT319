@@ -94,6 +94,7 @@ public class Player : MonoBehaviour, IShootable
 
         }
 
+        MainCanvas.Instance.playerHUDScript.SetAmmoText("" + rifle.Ammo);
 
     }
 
@@ -102,7 +103,7 @@ public class Player : MonoBehaviour, IShootable
     {
         Move();
         Shoot();
-
+        Debug.Log("Ammo: " + rifle.Ammo);
         if(Input.GetKeyDown(KeyCode.Space))
         {
             if (Time.timeScale != 0)
@@ -137,6 +138,12 @@ public class Player : MonoBehaviour, IShootable
             health.Add(Healthpack.HEALTH_GIVEN);
             MainCanvas.Instance.UpdateHealth();
             c.gameObject.GetComponent<Healthpack>().Reset();
+        }
+        if (c.tag.Equals("AmmoBox"))
+        {
+            rifle.AddAmmo(AmmoBox.AMMO_GIVEN);
+            MainCanvas.Instance.playerHUDScript.SetAmmoText("" + rifle.Ammo);
+            c.gameObject.GetComponent<AmmoBox>().Reset();
         }
     }
 }

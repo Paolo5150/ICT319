@@ -7,6 +7,7 @@ TagManager:
   - Enemy
   - Healthpack
   - Bomb
+  - AmmoBox
   layers:
   - Default
   - TransparentFX

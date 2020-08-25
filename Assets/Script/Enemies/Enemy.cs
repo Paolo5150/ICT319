@@ -146,6 +146,8 @@ public class Enemy : MonoBehaviour, IShootable
                 }
             }
         }
+
+        Diagnostic.Instance.UpdateAmmo(this.gameObject, rifle.Ammo);
     }
 
     void OnPlayerShotFired()

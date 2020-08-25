@@ -39,6 +39,9 @@ public class Diagnostic : MonoBehaviour
     public Text logsText;
 
     [HideInInspector]
+    public Text ammoText;
+
+    [HideInInspector]
     public GameObject enemyReference;
 
     int logLines;
@@ -50,6 +53,7 @@ public class Diagnostic : MonoBehaviour
         damageGiveText = transform.GetChild(1).GetComponent<Text>();
         stateText = transform.GetChild(2).GetComponent<Text>();
         logsText = transform.GetChild(3).GetComponent<Text>();
+        ammoText = transform.GetChild(5).GetComponent<Text>();
         SetEnabled(false);
     }
 
@@ -76,6 +80,7 @@ public class Diagnostic : MonoBehaviour
         enemyTypeText.text = enemyReference.name;
         damageGiveText.text = "Damage: " + enemyReference.GetComponent<Enemy>().damageGiven;
         logsText.text = ""; // Clear logs
+        UpdateAmmo(e, e.GetComponent<Rifle>().Ammo);
         logLines = 0;
         logCounter = 0;
     }
@@ -85,8 +90,16 @@ public class Diagnostic : MonoBehaviour
         if (logCounter % 2 == 0)
             return "<color=white>";
         else
-            return "<color=grey>";
+            return "<color=cyan>";
 
+    }
+
+    public void UpdateAmmo(GameObject enemyObj, int ammo)
+    {
+        if (enemyObj == enemyReference)
+        {
+            ammoText.text = "Ammo: " + ammo;
+        }
     }
     public void AddLog(GameObject enemyObj, string log)
     {
@@ -95,7 +108,7 @@ public class Diagnostic : MonoBehaviour
             logsText.text += logCounter + ". - " + GetColor() + log + "</color>\n";
             logLines++;
             logCounter++;
-            if(logLines >=15)
+            if(logLines >=18)
             {
                 logsText.text = "";
                 logLines = 0;
