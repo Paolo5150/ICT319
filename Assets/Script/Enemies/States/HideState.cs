@@ -87,10 +87,18 @@ public class HideState : EnemyState
     }
     public override void OnExit()
     {
-
+        isHiding = false;
+        personalityObj.enemyObj.StopAllCoroutines();
         personalityObj.enemyObj.navigator.SetOnDestinationReachedListener(() => {
 
         });
+    }
+
+    IEnumerator Go(Vector3 pos)
+    {
+        yield return new WaitForSeconds(0.5f);
+        personalityObj.enemyObj.navigator.UseRunSpeed();
+        personalityObj.enemyObj.navigator.Go(pos);
     }
 
     private bool LookAndHIde(List<Vector3> obstacles, bool allowCrossPath)
@@ -116,9 +124,9 @@ public class HideState : EnemyState
                     Ray playerToSpot = new Ray(Player.Instance.transform.position, pos);
                     if (Physics.Raycast(playerToSpot, 500, wallLayer))
                     {
-                        personalityObj.enemyObj.navigator.UseRunSpeed();
-                        personalityObj.enemyObj.navigator.Go(hit.position);
                         isHiding = true;
+
+                        personalityObj.enemyObj.StartCoroutine(Go(hit.position));
                         return true;
                     }
                 }

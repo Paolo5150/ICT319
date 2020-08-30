@@ -66,6 +66,7 @@ public class Enemy : MonoBehaviour, IShootable
                // explosion.GetComponent<ExplosionEffect>().Trigger();
             }
         }
+        Diagnostic.Instance.UpdateHealth(this.gameObject, health.GetHealth());
 
         if (personality != null)
             personality.OnGetShot(from);
@@ -179,6 +180,12 @@ public class Enemy : MonoBehaviour, IShootable
     {
         if (personality != null)
             personality.OnTriggerEnter(c);
+
+        if (c.gameObject.tag.Equals("AmmoBox"))
+        {
+            rifle.AddAmmo(AmmoBox.AMMO_GIVEN);
+            c.gameObject.GetComponent<AmmoBox>().Reset();
+        }
     }
 
 

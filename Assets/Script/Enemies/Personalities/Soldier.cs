@@ -10,6 +10,7 @@ public class Soldier : Personality
     InvestigateState investigationState;
     Retreat retreatState;
     HideState hideState;
+    RefifllAmmo refillAmmoState;
     BombAvoid bombAvoidState;
 
     float minHealthForRetreat = 35.0f;
@@ -30,6 +31,7 @@ public class Soldier : Personality
         retreatState = new Retreat(this, minHealthForRetreat);
         hideState = new HideState(this);
         bombAvoidState = new BombAvoid(this);
+        refillAmmoState = new RefifllAmmo(this);
 
         shootState.AddTransition(() =>
         {
@@ -44,8 +46,82 @@ public class Soldier : Personality
             return false;
         }, investigationState);
 
+        shootState.AddTransition(() =>
+        {
+            if (enemyObj.rifle.Ammo <= 0)
+            {
+                var allPacks = GameManager.Instance.GetAvailableAmmoPacks();
+                if(allPacks.Count == 0)
+                {
+                    Diagnostic.Instance.AddLog(enemyObj.gameObject, "Out of ammo, no packs around, going to hide!");
+                    return true;
+
+                }
+
+            }
+            return false;
+        }, hideState);
+
+        shootState.AddTransition(() =>
+        {
+            if (enemyObj.rifle.Ammo <= 0)
+            {
+                var allPacks = GameManager.Instance.GetAvailableAmmoPacks();
+                if (allPacks.Count > 0)
+                {
+                    refillAmmoState.allPacks = allPacks.ToArray();
+                    refillAmmoState.playerLastKnowsPosition = Player.Instance.transform.position;
+                    Diagnostic.Instance.AddLog(enemyObj.gameObject, "Out of ammo, going to refill!");
+                    return true;
+                }
+
+            }
+            return false;
+        }, refillAmmoState);
+
         investigationState.AddTransition(() => {
             return investigationState.done;
+        }, wanderState);
+
+        refillAmmoState.AddTransition(() =>
+        {
+            if(enemyObj.rifle.Ammo <=0 )
+            {
+                var allPacks = GameManager.Instance.GetAvailableAmmoPacks();
+                if (allPacks.Count == 0)
+                {
+                    return true;
+                }
+            }
+   
+            return false;
+        }  , hideState);
+
+        refillAmmoState.AddTransition(() =>
+        {
+            if (enemyObj.rifle.Ammo > 0)
+            {
+                if(refillAmmoState.playerLastKnowsPosition != null)
+                {
+                    investigationState.investigationPoint = refillAmmoState.playerLastKnowsPosition.Value;
+                    return true;
+                }
+            }
+
+            return false;
+        }, investigationState);
+
+        refillAmmoState.AddTransition(() =>
+        {
+            if (enemyObj.rifle.Ammo > 0)
+            {
+                if (refillAmmoState.playerLastKnowsPosition == null)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }, wanderState);
 
         //If health is ok and retreat has a player known pos, go investigate
@@ -85,12 +161,12 @@ public class Soldier : Personality
 
             if (enemyObj.health.GetHealth() < minHealthForRetreat)
             {
-                GameObject[] allPacks = GameObject.FindGameObjectsWithTag("HealthPack");
+                var packs = GameManager.Instance.GetAvailableHealthPacks();
 
-                if (allPacks.Length == 0)
+                if (packs.Count == 0)
                     Diagnostic.Instance.AddLog(enemyObj.gameObject, "Go a healthpack, but still feel crap, will go hide");
 
-                return allPacks.Length == 0;
+                return packs.Count == 0 && !hideState.isHiding;
             }
             return false;
         }, hideState);
@@ -99,15 +175,29 @@ public class Soldier : Personality
         //Will come out of hiding only when a health pack is available again
         hideState.AddTransition(() => {
 
-            GameObject[] allPacks = GameObject.FindGameObjectsWithTag("HealthPack");
-            if(allPacks.Length > 0)
+            var packs = GameManager.Instance.GetAvailableHealthPacks();
+
+            if (packs.Count > 0 && enemyObj.health.GetHealth() < retreatState.minHealthForRetreat)
             {
-                retreatState.allPacks = allPacks;
+                retreatState.allPacks = packs.ToArray();
                 return true;
             }
 
             return false;
         }, retreatState);
+
+        //Will come out of hiding only when a ammo pack is available again
+        hideState.AddTransition(() => {
+
+            var packs = GameManager.Instance.GetAvailableAmmoPacks();
+            if (packs.Count > 0 && enemyObj.health.GetHealth() >= retreatState.minHealthForRetreat)
+            {
+                refillAmmoState.allPacks = packs.ToArray();
+                return true;
+            }
+
+            return false;
+        }, refillAmmoState);
 
         bombAvoidState.AddTransitionDynamicState(() =>
         {
@@ -192,16 +282,29 @@ public class Soldier : Personality
             EvaluateRetreat();
             return;
         }
-        if (from.tag.Equals("Player"))
+        else
         {
-            if (stateMachine.GetCurrentState() != shootState && !investigationState.isInvestigating)
+            if (from.tag.Equals("Player"))
             {
-                Diagnostic.Instance.AddLog(enemyObj.gameObject, "Got shot by player! I'll go check where the shot came from");
+                if(enemyObj.rifle.Ammo > 0)
+                {
+                    if (stateMachine.GetCurrentState() != shootState && !investigationState.isInvestigating)
+                    {
+                        Diagnostic.Instance.AddLog(enemyObj.gameObject, "Got shot by player! I'll go check where the shot came from");
 
-                investigationState.investigationPoint = from.transform.position;
-                stateMachine.SetState(investigationState);
+                        investigationState.investigationPoint = from.transform.position;
+                        stateMachine.SetState(investigationState);
+                    }
+                }
+                else
+                {
+                    EvaluateAmmoRefill();
+
+                }
+
             }
         }
+
 
     }
 
@@ -219,12 +322,20 @@ public class Soldier : Personality
 
         if (enemyObj.health.GetHealth() >= minHealthForRetreat)
         {
-            if(stateMachine.GetCurrentState() != shootState)
+            if(enemyObj.rifle.Ammo > 0)
             {
-                Diagnostic.Instance.AddLog(enemyObj.gameObject, "Saw the player, shooting!");
+                if (stateMachine.GetCurrentState() != shootState )
+                {
+                    Diagnostic.Instance.AddLog(enemyObj.gameObject, "Saw the player, shooting!");
 
-                stateMachine.SetState(shootState);      
+                    stateMachine.SetState(shootState);
+                }
             }
+            else
+            {
+                EvaluateAmmoRefill();
+            }
+
         }
         else
         {
@@ -263,14 +374,22 @@ public class Soldier : Personality
 
         if (enemyObj.health.GetHealth() >= minHealthForRetreat)
         {
-            if (stateMachine.GetCurrentState() != shootState && !investigationState.isInvestigating)
-            {         
-                Diagnostic.Instance.AddLog(enemyObj.gameObject, "I heard the player shooting nearby, I'll go check out");
+            if(enemyObj.rifle.Ammo > 0)
+            {
+                if (stateMachine.GetCurrentState() != shootState && !investigationState.isInvestigating)
+                {
+                    Diagnostic.Instance.AddLog(enemyObj.gameObject, "I heard the player shooting nearby, I'll go check out");
 
-                enemyObj.navigator.Stop();
-                investigationState.investigationPoint = shotPosition;
-                stateMachine.SetState(investigationState);
+                    enemyObj.navigator.Stop();
+                    investigationState.investigationPoint = shotPosition;
+                    stateMachine.SetState(investigationState);
+                }
             }
+            else
+            {
+                EvaluateAmmoRefill();
+            }
+
         }
         else
         {
@@ -290,19 +409,35 @@ public class Soldier : Personality
             {
                 enemyObj.health.Add(Healthpack.HEALTH_GIVEN);
                 c.gameObject.GetComponent<Healthpack>().Reset();
+                Diagnostic.Instance.UpdateHealth(enemyObj.gameObject, enemyObj.health.GetHealth());
             }
         }
     }
        
+    private void EvaluateAmmoRefill()
+    {
+        var packs = GameManager.Instance.GetAvailableAmmoPacks();
+        if (packs.Count > 0)
+        {
+            if (stateMachine.GetCurrentState() != refillAmmoState)
+                stateMachine.SetState(refillAmmoState);
+
+        }
+        else
+        {
+            if (!hideState.isHiding)
+                stateMachine.SetState(hideState);
+        }
+    }
     private void EvaluateRetreat()
     {
 
-        GameObject[] allPacks = GameObject.FindGameObjectsWithTag("HealthPack");
+        var packs = GameManager.Instance.GetAvailableHealthPacks();
 
         //If there's an active healthpack, go get it
-        if (allPacks.Length > 0)
+        if (packs.Count > 0)
         {
-            retreatState.allPacks = allPacks;
+            retreatState.allPacks = packs.ToArray();
             if(stateMachine.GetCurrentState() != retreatState)
             {
                 Diagnostic.Instance.AddLog(enemyObj.gameObject, "I have low health, looking for healthpack");

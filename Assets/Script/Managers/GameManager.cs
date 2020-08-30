@@ -62,6 +62,34 @@ public class GameManager : MonoBehaviour
         Application.Quit();
     }
 
+    public List<GameObject> GetAvailableAmmoPacks()
+    {
+        List<GameObject> available = new List<GameObject>();
+
+        GameObject[] packs = GameObject.FindGameObjectsWithTag("AmmoBox");
+        foreach(GameObject g in packs)
+        {
+            if (g.GetComponent<AmmoBox>().isAvailable)
+                available.Add(g);
+        }
+
+        return available;
+    }
+
+    public List<GameObject> GetAvailableHealthPacks()
+    {
+        List<GameObject> available = new List<GameObject>();
+
+        GameObject[] packs = GameObject.FindGameObjectsWithTag("Healthpack");
+        foreach (GameObject g in packs)
+        {
+            if (g.GetComponent<Healthpack>().isAvailable)
+                available.Add(g);
+        }
+
+        return available;
+    }
+
     public void RecreateNavPath()
     {
         navMeshSurface.BuildNavMesh();

@@ -3,29 +3,35 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class Retreat : EnemyState
+public class RefifllAmmo : EnemyState
 {
     Sprite hideSprite;
-    public float minHealthForRetreat;
 
     public Vector3? playerLastKnowsPosition;
     public GameObject[] allPacks;
 
-    public Retreat(Personality e, float minHealthRetreat) : base(e)
+    public RefifllAmmo(Personality e) : base(e)
     {
-        stateImageSprite = Resources.Load<Sprite>("StateIcons\\retreat");
-        minHealthForRetreat = minHealthRetreat;
-        stateName = "Retreat";
+        stateImageSprite = Resources.Load<Sprite>("StateIcons\\ammo");
+        stateName = "RefillAmmo";
     }
 
+
+    IEnumerator Go(Vector3 pos)
+    {
+        yield return new WaitForSeconds(0.2f);
+
+        personalityObj.enemyObj.navigator.UseRunSpeed();
+        personalityObj.enemyObj.navigator.Go(pos);
+    }
     public override void OnEnter()
     {
         base.OnEnter();
-        Vector3 closestPack = new Vector3(0,0,0);
+        Vector3? closestPack = null;
         float closestDist = 10000000.0f;
         foreach (GameObject pack in allPacks)
         {
-            if (pack.GetComponent<Healthpack>().isAvailable)
+            if (pack.GetComponent<AmmoBox>().isAvailable)
             {
                 float dist = (personalityObj.enemyObj.transform.position - pack.transform.position).magnitude;
                 if (dist < closestDist)
@@ -36,15 +42,14 @@ public class Retreat : EnemyState
             }
         }
 
+        personalityObj.enemyObj.StartCoroutine(Go(closestPack.Value));
 
-        personalityObj.enemyObj.navigator.UseRunSpeed();
-        personalityObj.enemyObj.navigator.Go(closestPack);
     }
 
     public override void Update()
     {
         base.Update();
-       
+
 
     }
     public override void OnExit()
@@ -55,5 +60,5 @@ public class Retreat : EnemyState
         });
     }
 
-  
+
 }
