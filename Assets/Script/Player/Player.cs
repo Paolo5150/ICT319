@@ -103,7 +103,7 @@ public class Player : MonoBehaviour, IShootable
     {
         Move();
         Shoot();
-        Debug.Log("Ammo: " + rifle.Ammo);
+        //Debug.Log("Ammo: " + rifle.Ammo);
         if(Input.GetKeyDown(KeyCode.Space))
         {
             if (Time.timeScale != 0)

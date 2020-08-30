@@ -18,7 +18,7 @@ public class Rifle : MonoBehaviour
         shootPoint = transform.GetChild(2);
         shootableMask = LayerMask.GetMask("Shootable", "Wall");
         lineRenderer.enabled = false;
-        Ammo = 500;
+        Ammo = 100;
     }
 
     IEnumerator FireEffect(float fireRate)

@@ -50,6 +50,7 @@ public class Enemy : MonoBehaviour, IShootable
             }
         }
 
+        Diagnostic.Instance.UpdateHealth(this.gameObject, health.GetHealth());
         if (personality != null)
             personality.OnGetBombed();
     }

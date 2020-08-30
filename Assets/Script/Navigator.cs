@@ -62,42 +62,6 @@ public class Navigator : MonoBehaviour
         isMoving = false;
     }
 
-    IEnumerator Move(Vector3[] path)
-    {
-        float distance = 10000000;
-        int current = 0;
-        while (!doneChecking)
-        {
-            posVec2.x = transform.position.x;
-            posVec2.y = transform.position.z;
-            if (current < path.Length - 1)
-                distance = Vector2.Distance(new Vector2(transform.position.x, transform.position.z), new Vector2(path[current].x, path[current].z));
-            if (distance < 0.1)
-            {
-                if (current < path.Length - 1)
-                    current++;
-                else
-                {
-                    isMoving = false;
-                    if (onDestinationReachedListener != null)
-                        onDestinationReachedListener();
-                    doneChecking = true;
-                    break;
-                }
-            }
-            else
-            {
-                if (current < path.Length - 1)
-                {
-
-                transform.LookAt(new Vector3(path[current].x, transform.position.y, path[current].z));
-                transform.position = Vector3.MoveTowards(transform.position, new Vector3(path[current].x, transform.position.y, path[current].z), Time.deltaTime * currentSpeed);
-                }
-            }
-            yield return null;
-        }
-    }
-
     IEnumerator StartAgent(Vector3 end)
     {
         navAgent.enabled = true;

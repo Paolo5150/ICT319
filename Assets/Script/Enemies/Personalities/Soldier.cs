@@ -85,11 +85,12 @@ public class Soldier : Personality
 
             if (enemyObj.health.GetHealth() < minHealthForRetreat)
             {
-                Vector3? closestPack = LookForHealthpack();
-                if(closestPack == null)
+                GameObject[] allPacks = GameObject.FindGameObjectsWithTag("HealthPack");
+
+                if (allPacks.Length == 0)
                     Diagnostic.Instance.AddLog(enemyObj.gameObject, "Go a healthpack, but still feel crap, will go hide");
 
-                return closestPack == null;
+                return allPacks.Length == 0;
             }
             return false;
         }, hideState);
@@ -98,10 +99,10 @@ public class Soldier : Personality
         //Will come out of hiding only when a health pack is available again
         hideState.AddTransition(() => {
 
-            Vector3? pack = LookForHealthpack();
-            if(pack != null)
+            GameObject[] allPacks = GameObject.FindGameObjectsWithTag("HealthPack");
+            if(allPacks.Length > 0)
             {
-                retreatState.closestPack = pack.Value;
+                retreatState.allPacks = allPacks;
                 return true;
             }
 
@@ -131,7 +132,7 @@ public class Soldier : Personality
             stateMachine.GetCurrentState() == retreatState ||
                stateMachine.GetCurrentState() == hideState)
         {
-            Debug.Log("Received alarm, but will ignore!");
+            //Debug.Log("Received alarm, but will ignore!");
             Diagnostic.Instance.AddLog(enemyObj.gameObject, "Received an SOS, but will ignore");
             return;
         }
@@ -209,7 +210,7 @@ public class Soldier : Personality
         base.OnPlayerSeen(pPosition);
         if(alarmTimer <= 0.0f)
         {
-            Debug.Log("Alarm triggered");
+           // Debug.Log("Alarm triggered");
             Diagnostic.Instance.AddLog(enemyObj.gameObject, "Saw the player! Sending SOS");
 
             enemyObj.TriggerAlarm(pPosition);
@@ -292,38 +293,16 @@ public class Soldier : Personality
             }
         }
     }
-
-    private Vector3? LookForHealthpack()
-    {
-        //Look for a healthpack
-        //Find healthpacks
-        var allPacks = GameObject.FindGameObjectsWithTag("Healthpack");
-        Vector3? closestPack = null;
-        float closestDist = 10000000.0f;
-        foreach (GameObject pack in allPacks)
-        {
-            if (pack.GetComponent<Healthpack>().isAvailable)
-            {
-                float dist = (enemyObj.transform.position - pack.transform.position).magnitude;
-                if (dist < closestDist)
-                {
-                    closestPack = pack.transform.position;
-                    closestDist = dist;
-                }
-            }
-        }
-        return closestPack;
-    }
-
+       
     private void EvaluateRetreat()
-    {    
+    {
 
-        Vector3? closestPack = LookForHealthpack();
+        GameObject[] allPacks = GameObject.FindGameObjectsWithTag("HealthPack");
 
         //If there's an active healthpack, go get it
-        if (closestPack != null)
+        if (allPacks.Length > 0)
         {
-            retreatState.closestPack = closestPack.Value;
+            retreatState.allPacks = allPacks;
             if(stateMachine.GetCurrentState() != retreatState)
             {
                 Diagnostic.Instance.AddLog(enemyObj.gameObject, "I have low health, looking for healthpack");

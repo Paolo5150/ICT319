@@ -17,7 +17,6 @@ public class GameManager : MonoBehaviour
     private NavMeshSurface navMeshSurface;
     private GameObject floorParent;
     private GameObject mapParent;
-    private Vector2 endTileVec2Pos;
 
     private List<Vector3> obstacles;
     private void Awake()
@@ -37,10 +36,6 @@ public class GameManager : MonoBehaviour
         return obstacles;
     }
 
-    public Vector2 GetCurrentMapEndTilePos()
-    {
-        return endTileVec2Pos;
-    }
     // Start is called before the first frame update
     void Start()
     {

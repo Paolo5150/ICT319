@@ -42,6 +42,9 @@ public class Diagnostic : MonoBehaviour
     public Text ammoText;
 
     [HideInInspector]
+    public Text healthText;
+
+    [HideInInspector]
     public GameObject enemyReference;
 
     int logLines;
@@ -54,6 +57,7 @@ public class Diagnostic : MonoBehaviour
         stateText = transform.GetChild(2).GetComponent<Text>();
         logsText = transform.GetChild(3).GetComponent<Text>();
         ammoText = transform.GetChild(5).GetComponent<Text>();
+        healthText = transform.GetChild(6).GetComponent<Text>();
         SetEnabled(false);
     }
 
@@ -80,7 +84,9 @@ public class Diagnostic : MonoBehaviour
         enemyTypeText.text = enemyReference.name;
         damageGiveText.text = "Damage: " + enemyReference.GetComponent<Enemy>().damageGiven;
         logsText.text = ""; // Clear logs
-        UpdateAmmo(e, e.GetComponent<Rifle>().Ammo);
+        ammoText.text = "Ammo: " + enemyReference.GetComponent<Enemy>().rifle.Ammo;
+
+        healthText.text = "Health: " + enemyReference.GetComponent<Enemy>().health.GetHealth();
         logLines = 0;
         logCounter = 0;
     }
@@ -99,6 +105,14 @@ public class Diagnostic : MonoBehaviour
         if (enemyObj == enemyReference)
         {
             ammoText.text = "Ammo: " + ammo;
+        }
+    }
+
+    public void UpdateHealth(GameObject enemyObj, float health)
+    {
+        if (enemyObj == enemyReference)
+        {
+            healthText.text = "Health: " + health;
         }
     }
     public void AddLog(GameObject enemyObj, string log)
