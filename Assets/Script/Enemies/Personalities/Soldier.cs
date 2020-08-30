@@ -90,6 +90,8 @@ public class Soldier : Personality
                 var allPacks = GameManager.Instance.GetAvailableAmmoPacks();
                 if (allPacks.Count == 0)
                 {
+                    Diagnostic.Instance.AddLog(enemyObj.gameObject, "No ammo boxe available, will hide!");
+
                     return true;
                 }
             }
@@ -103,6 +105,8 @@ public class Soldier : Personality
             {
                 if(refillAmmoState.playerLastKnowsPosition != null)
                 {
+                    Diagnostic.Instance.AddLog(enemyObj.gameObject, "Go ammo, going to check last player known position");
+
                     investigationState.investigationPoint = refillAmmoState.playerLastKnowsPosition.Value;
                     return true;
                 }
@@ -117,6 +121,8 @@ public class Soldier : Personality
             {
                 if (refillAmmoState.playerLastKnowsPosition == null)
                 {
+                    Diagnostic.Instance.AddLog(enemyObj.gameObject, "Go ammo, don't know where player is, will wander around");
+
                     return true;
                 }
             }
@@ -163,7 +169,7 @@ public class Soldier : Personality
             {
                 var packs = GameManager.Instance.GetAvailableHealthPacks();
 
-                if (packs.Count == 0)
+                if (packs.Count == 0 && !hideState.isHiding)
                     Diagnostic.Instance.AddLog(enemyObj.gameObject, "Go a healthpack, but still feel crap, will go hide");
 
                 return packs.Count == 0 && !hideState.isHiding;
@@ -180,6 +186,8 @@ public class Soldier : Personality
             if (packs.Count > 0 && enemyObj.health.GetHealth() < retreatState.minHealthForRetreat)
             {
                 retreatState.allPacks = packs.ToArray();
+                Diagnostic.Instance.AddLog(enemyObj.gameObject, "Healthpack is available, going to get it!");
+
                 return true;
             }
 
@@ -193,6 +201,8 @@ public class Soldier : Personality
             if (packs.Count > 0 && enemyObj.health.GetHealth() >= retreatState.minHealthForRetreat)
             {
                 refillAmmoState.allPacks = packs.ToArray();
+                Diagnostic.Instance.AddLog(enemyObj.gameObject, "Ammo box is available, going to get it!");
+
                 return true;
             }
 
@@ -340,14 +350,14 @@ public class Soldier : Personality
         else
         {
             retreatState.playerLastKnowsPosition = pPosition; //Remember player host position, so if he gets a health pack, will go check
-
-            EvaluateRetreat();
-
+            
             if(stateMachine.previousState != hideState && stateMachine.GetCurrentState() == hideState)
                 Diagnostic.Instance.AddLog(enemyObj.gameObject, "Saw the player, but will go hide!");
 
             if (stateMachine.previousState != retreatState && stateMachine.GetCurrentState() == retreatState)
                 Diagnostic.Instance.AddLog(enemyObj.gameObject, "Saw the player, but will go get healthpack!");
+
+            EvaluateRetreat();
 
         }
     }
@@ -414,21 +424,34 @@ public class Soldier : Personality
         }
     }
        
+    //  If there's an ammo box availble, go get it
+    // Otherwise, go hide!
     private void EvaluateAmmoRefill()
     {
         var packs = GameManager.Instance.GetAvailableAmmoPacks();
         if (packs.Count > 0)
         {
             if (stateMachine.GetCurrentState() != refillAmmoState)
+            {
+                Diagnostic.Instance.AddLog(enemyObj.gameObject, "Going to get some ammo!");
+
                 stateMachine.SetState(refillAmmoState);
+            }
 
         }
         else
         {
             if (!hideState.isHiding)
+            {
+                Diagnostic.Instance.AddLog(enemyObj.gameObject, "No ammo box available, will hide!");
+
                 stateMachine.SetState(hideState);
+            }
         }
     }
+
+    //  If there's an healthpack availble, go get it
+    // Otherwise, go hide!
     private void EvaluateRetreat()
     {
 

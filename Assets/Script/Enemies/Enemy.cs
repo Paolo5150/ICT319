@@ -46,7 +46,8 @@ public class Enemy : MonoBehaviour, IShootable
             {
                 gameObject.SetActive(false);
                 personality = null;
-                // explosion.GetComponent<ExplosionEffect>().Trigger();
+                if (Diagnostic.Instance.enemyReference == gameObject)
+                    Diagnostic.Instance.enemyReference = null;
             }
         }
 
@@ -62,8 +63,8 @@ public class Enemy : MonoBehaviour, IShootable
             if(health.IsDead())
             {
                 gameObject.SetActive(false);
-                personality = null;
-               // explosion.GetComponent<ExplosionEffect>().Trigger();
+                if(Diagnostic.Instance.enemyReference == gameObject)
+                    Diagnostic.Instance.enemyReference = null;
             }
         }
         Diagnostic.Instance.UpdateHealth(this.gameObject, health.GetHealth());
@@ -127,6 +128,8 @@ public class Enemy : MonoBehaviour, IShootable
 
     private void Update()
     {
+        if (health.IsDead())
+            return;
         if (personality != null)
             personality.Update();
 
@@ -148,7 +151,6 @@ public class Enemy : MonoBehaviour, IShootable
                 }
             }
         }
-
         Diagnostic.Instance.UpdateAmmo(this.gameObject, rifle.Ammo);
     }
 

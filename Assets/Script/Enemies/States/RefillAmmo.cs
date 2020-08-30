@@ -29,6 +29,11 @@ public class RefifllAmmo : EnemyState
         base.OnEnter();
         Vector3? closestPack = null;
         float closestDist = 10000000.0f;
+        personalityObj.enemyObj.StopAllCoroutines();
+
+        //For some reason, sometimes is null
+        if (allPacks == null)
+            allPacks = GameManager.Instance.GetAvailableAmmoPacks().ToArray();
         foreach (GameObject pack in allPacks)
         {
             if (pack.GetComponent<AmmoBox>().isAvailable)
@@ -54,6 +59,7 @@ public class RefifllAmmo : EnemyState
     }
     public override void OnExit()
     {
+        personalityObj.enemyObj.StopAllCoroutines();
 
         personalityObj.enemyObj.navigator.SetOnDestinationReachedListener(() => {
 

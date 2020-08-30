@@ -64,7 +64,7 @@ public class Diagnostic : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (enemyReference != null)
+        if (enemyReference != null )
         {
             stateText.text = "State: " + enemyReference.GetComponent<Enemy>().personality.stateMachine.GetCurrentState().stateName;
         }
