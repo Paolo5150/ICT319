@@ -19,8 +19,8 @@ public class WanderState : EnemyState
     {
         isLookingForSpot = true;
         yield return new WaitForSeconds(2);
-        Vector3 randomDirection = Random.insideUnitSphere * 100;
-        NavMesh.SamplePosition(personalityObj.enemyObj.transform.position + randomDirection, out NavMeshHit hit, 100, 1);
+        Vector3 randomDirection = Random.insideUnitSphere * Random.Range(10, 60);
+        NavMesh.SamplePosition(personalityObj.enemyObj.transform.position + randomDirection, out NavMeshHit hit, Random.Range(10,60), 1);
         randomPos = hit.position;
         personalityObj.enemyObj.navigator.Go(randomPos);
         isLookingForSpot = false;

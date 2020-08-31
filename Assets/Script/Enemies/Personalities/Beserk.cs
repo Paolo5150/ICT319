@@ -8,6 +8,7 @@ public class Beserk : Personality
     ShootState shootState;
     InvestigateState investigationState;
     StunnedState stunnedState;
+    MeleeAttackState meleeAttackState;
     Sprite qMark;
 
     float shootTimer = 0;
@@ -24,12 +25,13 @@ public class Beserk : Personality
         shootState = new ShootState(this, enemyObj.shootRate);
         investigationState = new InvestigateState(this);
         stunnedState = new StunnedState(this);
+        meleeAttackState = new MeleeAttackState(this);
 
         qMark = Resources.Load<Sprite>("StateIcons\\what");
 
         wanderState.AddTransition(() =>
         {
-            if(enemyObj.enemySight.IsPlayerInSight())
+            if(enemyObj.enemySight.IsPlayerInSight() && enemyObj.rifle.Ammo > 0)
             {
                 Diagnostic.Instance.AddLog(enemyObj.gameObject, "See the player, shooting!");
 
@@ -50,6 +52,22 @@ public class Beserk : Personality
 
                 return true;
             }
+            return false;
+        }, investigationState);
+
+        shootState.AddTransition(() => {
+
+            return enemyObj.rifle.Ammo <= 0;
+        }, meleeAttackState);
+
+        meleeAttackState.AddTransition(() => {
+
+            if (meleeAttackState.playerLastKnownPosition != null)
+            {
+                investigationState.investigationPoint = meleeAttackState.playerLastKnownPosition.Value;
+                return true;
+            }
+
             return false;
         }, investigationState);
 

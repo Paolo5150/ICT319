@@ -57,9 +57,9 @@ public class Navigator : MonoBehaviour
     public void Stop()
     {
         StopAllCoroutines();
+        isMoving = false;
         doneChecking = true;
         navAgent.enabled = false;
-        isMoving = false;
     }
 
     IEnumerator StartAgent(Vector3 end)
@@ -79,7 +79,7 @@ public class Navigator : MonoBehaviour
             yield return null;
         }
 
-        navAgent.isStopped = true;
+        Stop();
         if (onDestinationReachedListener != null)
             onDestinationReachedListener();
 
