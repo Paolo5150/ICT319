@@ -77,7 +77,7 @@ public class Player : MonoBehaviour, IShootable
     {
         if (Input.GetMouseButton(0))
         {
-            if (shootTimer >= fireRate)
+            if (shootTimer >= fireRate && rifle.Ammo > 0)
             {
                 rifle.Shoot(fireRate, this.gameObject, damageGiven);
                 shootTimer = 0.0f;

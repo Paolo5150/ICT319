@@ -41,6 +41,18 @@ public class Beserk : Personality
 
         }, shootState);
 
+        wanderState.AddTransition(() =>
+        {
+            if (enemyObj.enemySight.IsPlayerInSight() && enemyObj.rifle.Ammo <= 0)
+            {
+                Diagnostic.Instance.AddLog(enemyObj.gameObject, "See the player, no ammo, will attack with hands!");
+
+                return true;
+            }
+            return false;
+
+        }, meleeAttackState);
+
         shootState.AddTransition(()=> 
         {
             if(!enemyObj.enemySight.IsPlayerInSight())
