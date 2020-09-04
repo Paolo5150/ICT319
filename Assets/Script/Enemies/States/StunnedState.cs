@@ -47,7 +47,7 @@ public class StunnedState : EnemyState
         Debug.Log("Exit stunned");
 
         personalityObj.enemyObj.enemySight.enabled = true;
-
+        stunTimer = 0;
 
     }
 }

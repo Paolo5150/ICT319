@@ -9,6 +9,7 @@ public class Beserk : Personality
     InvestigateState investigationState;
     StunnedState stunnedState;
     MeleeAttackState meleeAttackState;
+    RefifllAmmo refillAmmoState;
     Sprite qMark;
 
     float shootTimer = 0;
@@ -26,6 +27,7 @@ public class Beserk : Personality
         investigationState = new InvestigateState(this);
         stunnedState = new StunnedState(this);
         meleeAttackState = new MeleeAttackState(this);
+        refillAmmoState = new RefifllAmmo(this);
 
         qMark = Resources.Load<Sprite>("StateIcons\\what");
 
@@ -43,6 +45,25 @@ public class Beserk : Personality
 
         wanderState.AddTransition(() =>
         {
+            if (enemyObj.rifle.Ammo <= 0)
+            {
+                var packs = GameManager.Instance.GetAvailableAmmoPacks();
+                if (packs.Count > 0)
+                {
+                    if (stateMachine.GetCurrentState() != refillAmmoState)
+                    {
+                        Diagnostic.Instance.AddLog(enemyObj.gameObject, "No ammo, got nothing to do, going to get some");
+                        stateMachine.SetState(refillAmmoState);
+                        return true;
+                    }
+                }
+            }
+            return false;
+
+        }, refillAmmoState);
+
+        wanderState.AddTransition(() =>
+        {
             if (enemyObj.enemySight.IsPlayerInSight() && enemyObj.rifle.Ammo <= 0)
             {
                 Diagnostic.Instance.AddLog(enemyObj.gameObject, "See the player, no ammo, will attack with hands!");
@@ -52,6 +73,22 @@ public class Beserk : Personality
             return false;
 
         }, meleeAttackState);
+
+        refillAmmoState.AddTransition(() =>
+        {
+            if (enemyObj.rifle.Ammo > 0)
+            {
+                if (refillAmmoState.playerLastKnowsPosition == null)
+                {
+                    Diagnostic.Instance.AddLog(enemyObj.gameObject, "Go ammo, don't know where player is, will wander around");
+                    return true;
+                }
+            }
+
+            return false;
+        }, wanderState);
+
+
 
         shootState.AddTransition(()=> 
         {
@@ -174,6 +211,7 @@ public class Beserk : Personality
         }
   
     }
+
 
     public override void OnPlayerDeath()
     {
