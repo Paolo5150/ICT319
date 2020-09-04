@@ -18,10 +18,27 @@ public class Retreat : EnemyState
         stateName = "Retreat";
     }
 
+    IEnumerator Go(Vector3 dest)
+    {
+        yield return new WaitForSeconds(0.5f);
+        personalityObj.enemyObj.navigator.UseRunSpeed();
+        personalityObj.enemyObj.navigator.Go(dest);
+    }
+
     public override void OnEnter()
     {
         base.OnEnter();
-        Vector3 closestPack = new Vector3(0,0,0);
+
+        personalityObj.enemyObj.navigator.SetOnDestinationReachedListener(() => {
+
+        });
+
+        Vector3? closestPack = null;
+        if (allPacks == null)
+            allPacks = GameManager.Instance.GetAvailableHealthPacks().ToArray();
+
+        personalityObj.enemyObj.StopAllCoroutines();
+
         float closestDist = 10000000.0f;
         foreach (GameObject pack in allPacks)
         {
@@ -36,9 +53,10 @@ public class Retreat : EnemyState
             }
         }
 
-
+       // personalityObj.enemyObj.StartCoroutine(Go(closestPack));
         personalityObj.enemyObj.navigator.UseRunSpeed();
-        personalityObj.enemyObj.navigator.Go(closestPack);
+        personalityObj.enemyObj.navigator.Go(closestPack.Value);
+
     }
 
     public override void Update()

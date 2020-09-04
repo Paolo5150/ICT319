@@ -10,9 +10,11 @@ public class Beserk : Personality
     StunnedState stunnedState;
     MeleeAttackState meleeAttackState;
     RefifllAmmo refillAmmoState;
+    Retreat retreatState;
     Sprite qMark;
 
     float shootTimer = 0;
+    float minHealthForRetreat = 65.0f;
 
     public Beserk(Enemy e) : base(e)
     {
@@ -28,6 +30,7 @@ public class Beserk : Personality
         stunnedState = new StunnedState(this);
         meleeAttackState = new MeleeAttackState(this);
         refillAmmoState = new RefifllAmmo(this);
+        retreatState = new Retreat(this, minHealthForRetreat);
 
         qMark = Resources.Load<Sprite>("StateIcons\\what");
 
@@ -52,8 +55,46 @@ public class Beserk : Personality
                 {
                     if (stateMachine.GetCurrentState() != refillAmmoState)
                     {
+                        refillAmmoState.allPacks = packs.ToArray();
                         Diagnostic.Instance.AddLog(enemyObj.gameObject, "No ammo, got nothing to do, going to get some");
-                        stateMachine.SetState(refillAmmoState);
+                        return true;
+                    }
+                }
+            }
+            return false;
+
+        }, refillAmmoState);
+
+        wanderState.AddTransition(() =>
+        {
+            if (enemyObj.health.GetHealth() < minHealthForRetreat)
+            {
+                var packs = GameManager.Instance.GetAvailableHealthPacks();
+                if (packs.Count > 0)
+                {
+                    if (stateMachine.GetCurrentState() != retreatState)
+                    {
+                        retreatState.allPacks = packs.ToArray();
+
+                        Diagnostic.Instance.AddLog(enemyObj.gameObject, "Low health, got nothing to do, going to get some");
+                        return true;
+                    }
+                }
+            }
+            return false;
+
+        }, retreatState);
+
+        wanderState.AddTransition(() =>
+        {
+            if (enemyObj.rifle.Ammo <= 0)
+            {
+                var packs = GameManager.Instance.GetAvailableAmmoPacks();
+                if (packs.Count > 0)
+                {
+                    if (stateMachine.GetCurrentState() != refillAmmoState)
+                    {
+                        Diagnostic.Instance.AddLog(enemyObj.gameObject, "No ammo, got nothing to do, going to get some");
                         return true;
                     }
                 }
@@ -88,7 +129,40 @@ public class Beserk : Personality
             return false;
         }, wanderState);
 
+        refillAmmoState.AddTransition(() =>
+        {
+            if (enemyObj.enemySight.IsPlayerInSight())
+            {
+                Diagnostic.Instance.AddLog(enemyObj.gameObject, "Saw player, no time for refill ammo, attack!");
+                return true;
+            }
 
+            return false;
+        }, meleeAttackState);
+
+        retreatState.AddTransition(() =>
+        {
+            if (enemyObj.enemySight.IsPlayerInSight())
+            {
+                Diagnostic.Instance.AddLog(enemyObj.gameObject, "Saw player, no time for get healthpack, attack!");
+                return true;
+            }
+
+            return false;
+        }, shootState);
+
+        retreatState.AddTransition(() =>
+        {
+            //If the health was restored OR health is low but no packs available, go back wandering
+            if (enemyObj.health.GetHealth() > minHealthForRetreat ||
+                   (enemyObj.health.GetHealth() <= minHealthForRetreat && GameManager.Instance.GetAvailableHealthPacks().Count == 0) )
+            {
+                Diagnostic.Instance.AddLog(enemyObj.gameObject, "Feeling better, going to stroll around...");
+                return true;
+            }
+
+            return false;
+        }, wanderState);
 
         shootState.AddTransition(()=> 
         {
@@ -179,11 +253,11 @@ public class Beserk : Personality
     {
         base.Update();
         //Will shot for a certain amount of time after losing sight of the player
-        if(shootTimer > 0 && stateMachine.GetCurrentState() != stunnedState)
+      /*  if(shootTimer > 0 && stateMachine.GetCurrentState() != stunnedState)
         {
             enemyObj.rifle.Shoot(enemyObj.shootRate, enemyObj.gameObject, enemyObj.damageGiven);
             shootTimer -= Time.deltaTime;
-        }
+        }*/
     }
 
     public override void OnGetBombed()
@@ -212,12 +286,29 @@ public class Beserk : Personality
   
     }
 
+    public override void OnPlayerSeen(Vector3 pPosition)
+    {
+
+    }
 
     public override void OnPlayerDeath()
     {
         base.OnPlayerDeath();
         enemyObj.enemySight.enabled = false;
         stateMachine.SetState(wanderState);
+    }
+
+    public override void OnTriggerEnter(Collider c)
+    {
+        if (stateMachine.GetCurrentState() == retreatState)
+        {
+            if (c.gameObject.tag.Equals("Healthpack"))
+            {
+                enemyObj.health.Add(Healthpack.HEALTH_GIVEN);
+                c.gameObject.GetComponent<Healthpack>().Reset();
+                Diagnostic.Instance.UpdateHealth(enemyObj.gameObject, enemyObj.health.GetHealth());
+            }
+        }
     }
 
     public override void OnPlayeShotFired(Vector3 shotPosition)

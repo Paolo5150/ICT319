@@ -32,7 +32,6 @@ public class InvestigateState : EnemyState
 
     public override void OnEnter()
     {
-        Debug.Log("Enter investigation");
         base.OnEnter();
         personalityObj.enemyObj.navigator.SetOnDestinationReachedListener(() =>
         {

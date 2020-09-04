@@ -20,8 +20,6 @@ public class ShootState : EnemyState
 
     public override void OnEnter()
     {
-        Debug.Log("Enter shoot");
-
         base.OnEnter();
 
     }
