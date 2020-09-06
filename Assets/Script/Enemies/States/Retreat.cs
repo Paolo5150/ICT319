@@ -11,6 +11,8 @@ public class Retreat : EnemyState
     public Vector3? playerLastKnowsPosition;
     public GameObject[] allPacks;
 
+    GameObject targetPack;
+    float timer = 1.0f;
     public Retreat(Personality e, float minHealthRetreat) : base(e)
     {
         stateImageSprite = Resources.Load<Sprite>("StateIcons\\retreat");
@@ -33,7 +35,7 @@ public class Retreat : EnemyState
 
         });
 
-        Vector3? closestPack = null;
+        GameObject closestPack = null;
         if (allPacks == null)
             allPacks = GameManager.Instance.GetAvailableHealthPacks().ToArray();
 
@@ -47,7 +49,7 @@ public class Retreat : EnemyState
                 float dist = (personalityObj.enemyObj.transform.position - pack.transform.position).magnitude;
                 if (dist < closestDist)
                 {
-                    closestPack = pack.transform.position;
+                    closestPack = pack;
                     closestDist = dist;
                 }
             }
@@ -55,14 +57,45 @@ public class Retreat : EnemyState
 
        // personalityObj.enemyObj.StartCoroutine(Go(closestPack));
         personalityObj.enemyObj.navigator.UseRunSpeed();
-        personalityObj.enemyObj.navigator.Go(closestPack.Value);
+        personalityObj.enemyObj.navigator.Go(closestPack.transform.position);
 
     }
 
     public override void Update()
     {
         base.Update();
-       
+
+        if (timer <= 0)
+        {
+            timer = 1.0f;
+            float closestDist = 10000000.0f;
+            allPacks = GameManager.Instance.GetAvailableHealthPacks().ToArray();
+            GameObject closestPack = null;
+
+            foreach (GameObject pack in allPacks)
+            {
+                if (personalityObj.enemyObj.health.GetHealth() <= minHealthForRetreat)
+                {
+                    float dist = (personalityObj.enemyObj.transform.position - pack.transform.position).magnitude;
+                    if (dist < closestDist)
+                    {
+                        closestPack = pack;
+                        closestDist = dist;
+                    }
+                }
+            }
+
+            if (closestPack != targetPack)
+            {
+                targetPack = closestPack;
+                personalityObj.enemyObj.StartCoroutine(Go(closestPack.transform.position));
+            }
+        }
+        else
+        {
+            timer -= Time.deltaTime;
+        }
+
 
     }
     public override void OnExit()
