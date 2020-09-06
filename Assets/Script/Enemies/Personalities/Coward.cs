@@ -6,6 +6,9 @@ public class Coward : Personality
 {
     WanderState wanderState;
     HideState hideState;
+    Retreat retreatState;
+    RefifllAmmo refillAmmoState;
+
 
     public Coward(Enemy e) : base(e)
     {
@@ -18,6 +21,8 @@ public class Coward : Personality
         base.Init();
         wanderState = new WanderState(this);
         hideState = new HideState(this);
+        retreatState = new Retreat(this, enemyObj.health.maxHealth);
+        refillAmmoState = new RefifllAmmo(this);
 
         hideState.AddTransition(() => 
         {
@@ -26,6 +31,76 @@ public class Coward : Personality
                 Diagnostic.Instance.AddLog(enemyObj.gameObject, "Ok, done hiding");
                 return true;
             }
+            return false;
+        }, wanderState);  
+
+        //Will look for healthpack if health is not at max
+        wanderState.AddTransition(() =>
+        {
+            if (enemyObj.health.GetHealth() < enemyObj.health.maxHealth)
+            {
+                var packs = GameManager.Instance.GetAvailableHealthPacks();
+                if (packs.Count > 0)
+                {
+                    if (stateMachine.GetCurrentState() != retreatState)
+                    {
+                        retreatState.allPacks = packs.ToArray();
+
+                        Diagnostic.Instance.AddLog(enemyObj.gameObject, "Low health, got nothing to do, going to get some");
+                        return true;
+                    }
+                }
+            }
+            return false;
+
+        }, retreatState);
+
+        //Will look for healthpack if health is not at max
+        wanderState.AddTransition(() =>
+        {
+            if (enemyObj.rifle.Ammo < enemyObj.rifle.MaxAmmo)
+            {
+                var packs = GameManager.Instance.GetAvailableAmmoPacks();
+                if (packs.Count > 0)
+                {
+                    if (stateMachine.GetCurrentState() != refillAmmoState)
+                    {
+                        refillAmmoState.allPacks = packs.ToArray();
+
+                        Diagnostic.Instance.AddLog(enemyObj.gameObject, "Low ammo, got nothing to do, going to get some");
+                        return true;
+                    }
+                }
+            }
+            return false;
+
+        }, refillAmmoState);
+
+        retreatState.AddTransition(() =>
+        {
+            var packs = GameManager.Instance.GetAvailableHealthPacks();
+            //If the health was restored, or no packs available  go back wandering
+            if (enemyObj.health.GetHealth() >= enemyObj.health.maxHealth ||
+                enemyObj.health.GetHealth() < enemyObj.health.maxHealth && packs.Count == 0)
+            {
+                Diagnostic.Instance.AddLog(enemyObj.gameObject, "Feeling better, going to stroll around...");
+                return true;
+            }
+
+            return false;
+        }, wanderState);
+
+        refillAmmoState.AddTransition(() =>
+        {
+            var packs = GameManager.Instance.GetAvailableAmmoPacks();
+            //If the health was restored, or no packs available  go back wandering
+            if (enemyObj.rifle.Ammo >= enemyObj.rifle.MaxAmmo ||
+                enemyObj.rifle.Ammo < enemyObj.rifle.MaxAmmo && packs.Count == 0)
+            {
+                Diagnostic.Instance.AddLog(enemyObj.gameObject, "Feeling better, going to stroll around...");
+                return true;
+            }
+
             return false;
         }, wanderState);
 
@@ -40,21 +115,27 @@ public class Coward : Personality
   
     public override void OnPlayerSeen(Vector3 playerPos)
     {
-
         enemyObj.TriggerAlarm(playerPos);
-        Diagnostic.Instance.AddLog(enemyObj.gameObject, "Saw the player, going to hide!");
+        if(!hideState.isHiding)
+        {
+            Diagnostic.Instance.AddLog(enemyObj.gameObject, "Saw the player, going to hide!");
+            stateMachine.SetState(hideState);
+        }
 
-        stateMachine.SetState(hideState);
     }
 
     public override void OnGetShot(GameObject from)
     {
         if(from.gameObject.tag.Equals("Player"))
         {
-            Diagnostic.Instance.AddLog(enemyObj.gameObject, "I got shot! Sending SOS and going to hide!");
+            if (!hideState.isHiding)
+            {
+                Diagnostic.Instance.AddLog(enemyObj.gameObject, "I got shot! Sending SOS and going to hide!");
 
-            enemyObj.TriggerAlarm(enemyObj.transform.position);
-            stateMachine.SetState(hideState);
+                enemyObj.TriggerAlarm(enemyObj.transform.position);
+                stateMachine.SetState(hideState);
+
+            }
         }
 
     }
@@ -78,4 +159,5 @@ public class Coward : Personality
             }
         }
     }
+
 }

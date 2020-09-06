@@ -352,7 +352,7 @@ public class Soldier : Personality
             retreatState.playerLastKnowsPosition = pPosition; //Remember player host position, so if he gets a health pack, will go check
             
             if(stateMachine.previousState != hideState && stateMachine.GetCurrentState() == hideState)
-                Diagnostic.Instance.AddLog(enemyObj.gameObject, "Saw the player, but will go hide!");
+                Diagnostic.Instance.AddLog(enemyObj.gameObject, "Saw the player, but health still low, will go hide!");
 
             if (stateMachine.previousState != retreatState && stateMachine.GetCurrentState() == retreatState)
                 Diagnostic.Instance.AddLog(enemyObj.gameObject, "Saw the player, but will go get healthpack!");
@@ -411,19 +411,7 @@ public class Soldier : Personality
 
     }
 
-    public override void OnTriggerEnter(Collider c)
-    {
-        if(stateMachine.GetCurrentState() == retreatState)
-        {
-            if(c.gameObject.tag.Equals("Healthpack"))
-            {
-                enemyObj.health.Add(Healthpack.HEALTH_GIVEN);
-                c.gameObject.GetComponent<Healthpack>().Reset();
-                Diagnostic.Instance.UpdateHealth(enemyObj.gameObject, enemyObj.health.GetHealth());
-            }
-        }
-    }
-       
+      
     //  If there's an ammo box availble, go get it
     // Otherwise, go hide!
     private void EvaluateAmmoRefill()

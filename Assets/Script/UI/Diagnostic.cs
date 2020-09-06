@@ -84,9 +84,9 @@ public class Diagnostic : MonoBehaviour
         enemyTypeText.text = enemyReference.name;
         damageGiveText.text = "Damage: " + enemyReference.GetComponent<Enemy>().damageGiven;
         logsText.text = ""; // Clear logs
-        ammoText.text = "Ammo: " + enemyReference.GetComponent<Enemy>().rifle.Ammo;
+        ammoText.text = "Ammo: " + enemyReference.GetComponent<Enemy>().rifle.Ammo + " / " + enemyReference.GetComponent<Enemy>().rifle.MaxAmmo;
 
-        healthText.text = "Health: " + enemyReference.GetComponent<Enemy>().health.GetHealth();
+        healthText.text = "Health: " + enemyReference.GetComponent<Enemy>().health.GetHealth() + " / " + enemyReference.GetComponent<Enemy>().health.maxHealth;
         logLines = 0;
         logCounter = 0;
     }
@@ -104,7 +104,7 @@ public class Diagnostic : MonoBehaviour
     {
         if (enemyObj == enemyReference)
         {
-            ammoText.text = "Ammo: " + ammo;
+            ammoText.text = "Ammo: " + enemyReference.GetComponent<Enemy>().rifle.Ammo + " / " + enemyReference.GetComponent<Enemy>().rifle.MaxAmmo;
         }
     }
 
@@ -112,7 +112,7 @@ public class Diagnostic : MonoBehaviour
     {
         if (enemyObj == enemyReference)
         {
-            healthText.text = "Health: " + health;
+            healthText.text = "Health: " + enemyReference.GetComponent<Enemy>().health.GetHealth() + " / " + enemyReference.GetComponent<Enemy>().health.maxHealth;
         }
     }
     public void AddLog(GameObject enemyObj, string log)

@@ -298,19 +298,6 @@ public class Beserk : Personality
         stateMachine.SetState(wanderState);
     }
 
-    public override void OnTriggerEnter(Collider c)
-    {
-        if (stateMachine.GetCurrentState() == retreatState)
-        {
-            if (c.gameObject.tag.Equals("Healthpack"))
-            {
-                enemyObj.health.Add(Healthpack.HEALTH_GIVEN);
-                c.gameObject.GetComponent<Healthpack>().Reset();
-                Diagnostic.Instance.UpdateHealth(enemyObj.gameObject, enemyObj.health.GetHealth());
-            }
-        }
-    }
-
     public override void OnPlayeShotFired(Vector3 shotPosition)
     {
         if(stateMachine.GetCurrentState() == investigationState)

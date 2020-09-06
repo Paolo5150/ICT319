@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class AmmoBox : MonoBehaviour
 {
-    public static int AMMO_GIVEN = 250;
+    public static int AMMO_GIVEN = 100;
     public float rotationSpeed = 10.0f;
 
     private float reactivationTime = 10.0f;

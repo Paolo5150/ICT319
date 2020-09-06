@@ -188,6 +188,13 @@ public class Enemy : MonoBehaviour, IShootable
             rifle.AddAmmo(AmmoBox.AMMO_GIVEN);
             c.gameObject.GetComponent<AmmoBox>().Reset();
         }
+
+        if (c.gameObject.tag.Equals("Healthpack"))
+        {
+            health.Add(Healthpack.HEALTH_GIVEN);
+            c.gameObject.GetComponent<Healthpack>().Reset();
+            Diagnostic.Instance.UpdateHealth(gameObject, health.GetHealth());
+        }
     }
 
 

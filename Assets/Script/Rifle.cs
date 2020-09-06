@@ -7,9 +7,9 @@ public class Rifle : MonoBehaviour
     // Start is called before the first frame update
     public LineRenderer lineRenderer;
     Transform shootPoint;
-    bool isShooting = false;
 
     public int Ammo { get; private set; }
+    public int MaxAmmo { get; private set; }
 
     int shootableMask;
     void Start()
@@ -19,6 +19,7 @@ public class Rifle : MonoBehaviour
         shootableMask = LayerMask.GetMask("Shootable", "Wall");
         lineRenderer.enabled = false;
         Ammo = 100;
+        MaxAmmo = 150;
     }
 
     IEnumerator FireEffect(float fireRate)
@@ -36,6 +37,8 @@ public class Rifle : MonoBehaviour
     public void AddAmmo(int a)
     {
         Ammo += a;
+        if (Ammo >= MaxAmmo)
+            Ammo = MaxAmmo;
     }
 
     public GameObject Shoot(float fireRate, GameObject from, float damage)
