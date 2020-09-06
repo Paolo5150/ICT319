@@ -10,6 +10,9 @@ public class RefifllAmmo : EnemyState
     public Vector3? playerLastKnowsPosition;
     public GameObject[] allPacks;
 
+    GameObject targetPack = null;
+
+    float timer = 1.0f;
     public RefifllAmmo(Personality e) : base(e)
     {
         stateImageSprite = Resources.Load<Sprite>("StateIcons\\ammo");
@@ -27,7 +30,7 @@ public class RefifllAmmo : EnemyState
     public override void OnEnter()
     {
         base.OnEnter();
-        Vector3? closestPack = null;
+        GameObject closestPack = null;
         float closestDist = 10000000.0f;
         personalityObj.enemyObj.StopAllCoroutines();
 
@@ -41,19 +44,50 @@ public class RefifllAmmo : EnemyState
                 float dist = (personalityObj.enemyObj.transform.position - pack.transform.position).magnitude;
                 if (dist < closestDist)
                 {
-                    closestPack = pack.transform.position;
+                    closestPack = pack;
                     closestDist = dist;
                 }
             }
         }
-
-        personalityObj.enemyObj.StartCoroutine(Go(closestPack.Value));
+        targetPack = closestPack;
+        personalityObj.enemyObj.StartCoroutine(Go(closestPack.transform.position));
 
     }
 
     public override void Update()
     {
         base.Update();
+
+        if(timer <= 0)
+        {
+            timer = 1.0f;
+            float closestDist = 10000000.0f;
+            allPacks = GameManager.Instance.GetAvailableAmmoPacks().ToArray();
+            GameObject closestPack = null;
+
+            foreach (GameObject pack in allPacks)
+            {
+                if (pack.GetComponent<AmmoBox>().isAvailable)
+                {
+                    float dist = (personalityObj.enemyObj.transform.position - pack.transform.position).magnitude;
+                    if (dist < closestDist)
+                    {
+                        closestPack = pack;
+                        closestDist = dist;
+                    }
+                }
+            }
+
+            if(closestPack != targetPack)
+            {
+                targetPack = closestPack;
+                personalityObj.enemyObj.StartCoroutine(Go(closestPack.transform.position));
+            }
+        }
+        else
+        {
+            timer -= Time.deltaTime;
+        }
 
 
     }
