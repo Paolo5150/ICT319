@@ -208,14 +208,18 @@ public class Beserk : Personality
             return investigationState.done;
         }, wanderState);
 
-        stunnedState.AddTransitionDynamicState(() =>
+        stunnedState.AddTransition(() =>
         {
-            return !stunnedState.isStunned;
+            if (!stunnedState.isStunned)
+            {
+                investigationState.investigationPoint = enemyObj.transform.position;
+
+                return true;
+            }
+
+            return false;
         },
-        () =>
-        {
-            return stateMachine.previousState;
-        });
+        investigationState);
 
 
         //Beserk will respond to alarm
@@ -264,7 +268,7 @@ public class Beserk : Personality
     {
         if(stateMachine.GetCurrentState() != stunnedState)
         {
-            Diagnostic.Instance.AddLog(enemyObj.gameObject, "Great, stepped on a bomb...");
+            Diagnostic.Instance.AddLog(enemyObj.gameObject, "Got bombed!");
 
             stateMachine.SetState(stunnedState);
         }

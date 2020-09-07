@@ -12,6 +12,7 @@ public class Soldier : Personality
     HideState hideState;
     RefifllAmmo refillAmmoState;
     BombAvoid bombAvoidState;
+    StunnedState stunnedState;
 
     float minHealthForRetreat = 35.0f;
     float alarmTimer = 0;
@@ -32,6 +33,7 @@ public class Soldier : Personality
         hideState = new HideState(this);
         bombAvoidState = new BombAvoid(this);
         refillAmmoState = new RefifllAmmo(this);
+        stunnedState = new StunnedState(this);
 
         shootState.AddTransition(() =>
         {
@@ -215,6 +217,19 @@ public class Soldier : Personality
         }, 
         ()=> { return stateMachine.previousState; });
 
+        stunnedState.AddTransition(() =>
+        {
+            if (!stunnedState.isStunned)
+            {
+                investigationState.investigationPoint = enemyObj.transform.position;
+
+                return true;
+            }
+
+            return false;
+        },
+        investigationState);
+
         //Soldier will respond to alarm
         Enemy.OnAlarmSent += GoInvestigateSOS;
         stateMachine.SetState(wanderState);
@@ -279,6 +294,14 @@ public class Soldier : Personality
 
     }
 
+    public override void OnGetBombed()
+    {
+        if (stateMachine.GetCurrentState() != stunnedState)
+        {
+            Diagnostic.Instance.AddLog(enemyObj.gameObject, "Got bombed!");
+            stateMachine.SetState(stunnedState);
+        }
+    }
 
     public override void OnGetShot(GameObject from)
     {

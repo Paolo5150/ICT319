@@ -7,6 +7,7 @@ public class ExplosionEffect : MonoBehaviour
 {
     public bool available = true;
     public float bombReactivationTime = 10.0f;
+    public float damageRadius = 5.0f;
     NavMeshObstacle navMeshObstacle;
     ParticleSystem[] particlesSystems;
     Light myLight;
@@ -16,6 +17,7 @@ public class ExplosionEffect : MonoBehaviour
     void Start()
     {
         Init();
+
     }
 
     public void Init()
@@ -102,11 +104,65 @@ public class ExplosionEffect : MonoBehaviour
 
     void OnTriggerEnter(Collider c)
     {
-
+        int wallLayer = LayerMask.GetMask("Wall");
         if (c.tag.Equals("Enemy"))
         {
             Trigger();
-            c.GetComponent<Enemy>().OnGetBombed(25.0f);
+            GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+
+            foreach(GameObject e in enemies)
+            {
+                //Check if within radius
+                Vector3 toEnemy = e.transform.position - transform.position;
+                float dist = toEnemy.magnitude;
+
+                if (dist <= damageRadius)
+                {
+                    //Check that enemy is not protected by wall
+                    Ray r = new Ray(transform.position, toEnemy.normalized);
+                    RaycastHit[] hit;
+                    hit = Physics.RaycastAll(r, damageRadius);
+                    if(hit.Length != 0)
+                    {
+                        foreach(RaycastHit enemyHit in hit)
+                        {
+                            if (enemyHit.collider.gameObject == e)
+                            {
+                                e.GetComponent<Enemy>().OnGetBombed(20);
+                                break;
+                            }
+                        }
+                    }
+                 
+                }
+            }
+
+            //Also check if player is in range
+            Vector3 toPlayer = new Vector3(Player.Instance.transform.position.x, transform.position.y, Player.Instance.transform.position.z) - transform.position;
+
+            if(toPlayer.magnitude < 0.0001) // Player dropped the bomb right on enemy
+            {
+                Player.Instance.GetComponent<Player>().OnGetBombed(20);
+            }
+            else if (toPlayer.magnitude <= damageRadius)
+            {
+                //Check that enemy is not protected by wall
+                Ray r = new Ray(transform.position, toPlayer.normalized);
+                RaycastHit[] hit;
+                hit = Physics.RaycastAll(r, damageRadius);
+                if (hit.Length != 0)
+                {
+                    foreach (RaycastHit pHit in hit)
+                    {
+                        if (pHit.collider.gameObject == Player.Instance.gameObject)
+                        {
+                            Player.Instance.GetComponent<Player>().OnGetBombed(20);
+                            break;
+                        }
+                    }
+                }
+
+            }
 
         }
         else if (c.tag.Equals("Player")) 

@@ -8,6 +8,7 @@ public class Coward : Personality
     HideState hideState;
     Retreat retreatState;
     RefifllAmmo refillAmmoState;
+    StunnedState stunnedState;
 
 
     public Coward(Enemy e) : base(e)
@@ -23,6 +24,7 @@ public class Coward : Personality
         hideState = new HideState(this);
         retreatState = new Retreat(this, enemyObj.health.maxHealth);
         refillAmmoState = new RefifllAmmo(this);
+        stunnedState = new StunnedState(this);
 
         hideState.AddTransition(() => 
         {
@@ -104,6 +106,17 @@ public class Coward : Personality
             return false;
         }, wanderState);
 
+        stunnedState.AddTransition(() =>
+        {
+            if (!stunnedState.isStunned)
+            {
+                return true;
+            }
+
+            return false;
+        },
+        hideState);
+
         stateMachine.SetState(wanderState);
     }
 
@@ -124,11 +137,20 @@ public class Coward : Personality
 
     }
 
+    public override void OnGetBombed()
+    {
+        if (stateMachine.GetCurrentState() != stunnedState && stateMachine.GetCurrentState() != stunnedState)
+        {
+            Diagnostic.Instance.AddLog(enemyObj.gameObject, "Got bombed!");
+            stateMachine.SetState(stunnedState);
+        }
+    }
+
     public override void OnGetShot(GameObject from)
     {
         if(from.gameObject.tag.Equals("Player"))
         {
-            if (!hideState.isHiding)
+            if (!hideState.isHiding && stateMachine.GetCurrentState() != stunnedState)
             {
                 Diagnostic.Instance.AddLog(enemyObj.gameObject, "I got shot! Sending SOS and going to hide!");
 

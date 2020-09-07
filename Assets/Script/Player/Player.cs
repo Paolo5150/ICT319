@@ -146,4 +146,20 @@ public class Player : MonoBehaviour, IShootable
             c.gameObject.GetComponent<AmmoBox>().Reset();
         }
     }
+
+    public void OnGetBombed(float damage)
+    {
+        health.Add(-damage);
+        MainCanvas.Instance.UpdateHealth();
+        if (health.IsDead())
+        {
+            StopAllCoroutines();
+            gameObject.SetActive(false);
+            //GameOver
+            if (OnPlayerDeath != null)
+                OnPlayerDeath();
+
+            MainCanvas.Instance.EnableGameOver(true);
+        }
+    }
 }
