@@ -148,7 +148,8 @@ public class Coward : Personality
 
     public override void OnGetShot(GameObject from)
     {
-        if(from.gameObject.tag.Equals("Player"))
+
+        if (from.gameObject.tag.Equals("Player"))
         {
             if (!hideState.isHiding && stateMachine.GetCurrentState() != stunnedState)
             {

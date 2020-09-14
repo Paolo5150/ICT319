@@ -308,7 +308,9 @@ public class Soldier : Personality
 
     public override void OnGetShot(GameObject from)
     {
-        if(enemyObj.health.GetHealth() < minHealthForRetreat)
+        if (stateMachine.GetCurrentState() == stunnedState) return;
+
+        if (enemyObj.health.GetHealth() < minHealthForRetreat)
         {
             //If shot by player, remember last known position
             if (from.gameObject.tag.Equals("Player"))
@@ -320,23 +322,19 @@ public class Soldier : Personality
         }
         else
         {
-            if (from.tag.Equals("Player"))
+            if (enemyObj.rifle.Ammo > 0)
             {
-                if(enemyObj.rifle.Ammo > 0)
+                if (stateMachine.GetCurrentState() != shootState)
                 {
-                    if (stateMachine.GetCurrentState() != shootState && !investigationState.isInvestigating)
-                    {
-                        Diagnostic.Instance.AddLog(enemyObj.gameObject, "Got shot by player! I'll go check where the shot came from");
+                    Diagnostic.Instance.AddLog(enemyObj.gameObject, "Got shot by player! I'll go check where the shot came from");
 
-                        investigationState.investigationPoint = from.transform.position;
-                        stateMachine.SetState(investigationState);
-                    }
+                    investigationState.investigationPoint = from.transform.position;
+                    stateMachine.SetState(investigationState);
                 }
-                else
-                {
-                    EvaluateAmmoRefill();
-
-                }
+            }
+            else
+            {
+                EvaluateAmmoRefill();
 
             }
         }

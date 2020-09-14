@@ -279,9 +279,10 @@ public class Beserk : Personality
 
     public override void OnGetShot(GameObject from)
     {
+        if (stateMachine.GetCurrentState() == stunnedState) return;
         if(from.tag.Equals("Player"))
         {
-            if (stateMachine.GetCurrentState() != shootState && !investigationState.isInvestigating)
+            if (stateMachine.GetCurrentState() != shootState)
             {
                 Diagnostic.Instance.AddLog(enemyObj.gameObject, "Got shot by player, going to check");
 
