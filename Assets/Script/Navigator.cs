@@ -83,7 +83,6 @@ public class Navigator : MonoBehaviour
         if (onDestinationReachedListener != null)
             onDestinationReachedListener();
 
-        Debug.Log("Destination reached!");
     }
 
     public void Go(Vector3 end)

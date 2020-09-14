@@ -235,6 +235,8 @@ public class Beserk : Personality
 
     void GoInsestigateSOS(Vector3 pos, GameObject triggeredBy)
     {
+        if (stateMachine.GetCurrentState() == stunnedState)
+            return;
         investigationState.waitBeforeGoingToPoint = 0.0f;
         investigationState.investigationPoint = pos;
 

@@ -4,6 +4,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -17,6 +18,28 @@ public class GameManager : MonoBehaviour
     private NavMeshSurface navMeshSurface;
     private GameObject floorParent;
     private GameObject mapParent;
+
+    public GameObject menuPanel;
+    public int beserkCount = 1;
+    public int soldierCount = 1;
+    public int cowardCount = 1;
+
+    public int healthPacksCount = 1;
+    public int ammoboxCount = 1;
+
+    public InputField cowardField;
+    public InputField soldierField;
+    public InputField beserkField;
+
+    public InputField healthPackField;
+    public InputField ammoboxField;
+
+
+    public GameObject[] beserks;
+    public GameObject[] soldiers;
+    public GameObject[] cowards;
+    public GameObject[] healthPacks;
+    public GameObject[] ammoBoxes;
 
     private List<Vector3> obstacles;
     private void Awake()
@@ -39,17 +62,30 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Player.Instance.Init();
         obstacles = new List<Vector3>();
         navMeshSurface = GetComponent<NavMeshSurface>();
-        LoadMap();
+
+        for (int i = 0; i < 3; i++)
+        {
+            beserks[i].SetActive(false);
+            cowards[i].SetActive(false);
+            soldiers[i].SetActive(false);
+        }
+        //   LoadMap();
+
+        beserkField.text = "1";
+        cowardField.text = "1";
+        soldierField.text = "1";
+        healthPackField.text = "1";
+        ammoboxField.text = "1";
 
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if (Input.GetKeyDown(KeyCode.Escape))
+            Restart();
     } 
 
     public void Restart()
@@ -117,13 +153,69 @@ public class GameManager : MonoBehaviour
             player.transform.position = new Vector3(currentMap.startTile.x, 0.6f, currentMap.startTile.z);
            // endTileVec2Pos = new Vector2(currentMap.endTile.x, currentMap.endTile.z);
         }
+        Player.Instance.Init();
 
         MainCanvas.Instance.Init();
         var allEnemies = GameObject.FindGameObjectsWithTag("Enemy");
-        foreach(GameObject g in allEnemies)
+
+        navMeshSurface.BuildNavMesh();
+
+
+        beserkCount = int.Parse(beserkField.text);
+        cowardCount = int.Parse(cowardField.text);
+        soldierCount = int.Parse(soldierField.text);
+
+        healthPacksCount = int.Parse(healthPackField.text);
+        ammoboxCount = int.Parse(ammoboxField.text);
+
+        beserkCount = Mathf.Clamp(beserkCount, 0, 3);
+        soldierCount = Mathf.Clamp(soldierCount, 0, 3);
+        cowardCount = Mathf.Clamp(cowardCount, 0, 3);
+        healthPacksCount = Mathf.Clamp(healthPacksCount, 0, 3);
+        ammoboxCount= Mathf.Clamp(ammoboxCount, 0, 3);
+
+
+        List<GameObject> activeEnemies = new List<GameObject>();
+
+        for(int i=0; i< 3; i++)
+        {
+            bool val;
+            val = i < beserkCount;
+            beserks[i].SetActive(val);
+            if (val)
+                activeEnemies.Add(beserks[i]);
+
+            val = i < soldierCount;
+            soldiers[i].SetActive(val);
+            if (val)
+                activeEnemies.Add(soldiers[i]);
+
+            val = i < cowardCount;
+            cowards[i].SetActive(val);
+            if (val)
+                activeEnemies.Add(cowards[i]);
+        }
+
+        foreach(GameObject g in activeEnemies)
             g.GetComponent<Enemy>().Init();
 
-            navMeshSurface.BuildNavMesh();
+        GameObject[] allHP = GameObject.FindGameObjectsWithTag("Healthpack");
+        GameObject[] allAB = GameObject.FindGameObjectsWithTag("AmmoBox");
+        for(int i = 0; i< 3; i++)
+        {
+            if (i < ammoboxCount)
+                allAB[i].SetActive(true);
+            else
+                allAB[i].SetActive(false);
+
+            if (i < healthPacksCount)
+                allHP[i].SetActive(true);
+            else
+                allHP[i].SetActive(false);
+
+        }
+
+        menuPanel.SetActive(false);
     }
 
 

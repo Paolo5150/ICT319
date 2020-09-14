@@ -41,6 +41,7 @@ public class Player : MonoBehaviour, IShootable
     int raycastPlane;
     Rifle rifle;
     float shootTimer = 0.0f;
+    bool isInitialized = false;
     // Start is called before the first frame update
     public void Init()
     {
@@ -48,6 +49,7 @@ public class Player : MonoBehaviour, IShootable
         rifle = GetComponentInChildren<Rifle>();
         rifle.lineRenderer.material.color = Color.red;
         health = new Health();
+        isInitialized = true;
     }
 
     void Move()
@@ -101,6 +103,7 @@ public class Player : MonoBehaviour, IShootable
     // Update is called once per frame
     void Update()
     {
+        if (!isInitialized) return;
         Move();
         Shoot();
         //Debug.Log("Ammo: " + rifle.Ammo);

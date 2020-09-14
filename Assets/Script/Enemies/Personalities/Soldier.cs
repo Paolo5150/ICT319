@@ -243,6 +243,9 @@ public class Soldier : Personality
 
     void GoInvestigateSOS(Vector3 pos, GameObject triggeredBy)
     {
+        if (stateMachine.GetCurrentState() == stunnedState)
+            return;
+
         if(triggeredBy == enemyObj.gameObject ||
             stateMachine.GetCurrentState() == retreatState ||
                stateMachine.GetCurrentState() == hideState)
