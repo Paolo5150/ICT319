@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class ExplosionEffect : MonoBehaviour
+public class ExplosionEffect : MonoBehaviour, IShootable
 {
     public bool available = true;
     public float bombReactivationTime = 10.0f;
@@ -187,5 +187,16 @@ public class ExplosionEffect : MonoBehaviour
                 justDropped = false;
             }
         }
+    }
+
+    public void OnGetShot(GameObject from, float damage)
+    {
+        if(isActiveAndEnabled)
+            Trigger();
+    }
+
+    public void OnGetBombed(float damage)
+    {
+        throw new System.NotImplementedException();
     }
 }

@@ -73,9 +73,9 @@ public class GameManager : MonoBehaviour
         }
         //   LoadMap();
 
-        beserkField.text = "1";
-        cowardField.text = "1";
-        soldierField.text = "1";
+        beserkField.text = "0";
+        cowardField.text = "0";
+        soldierField.text = "0";
         healthPackField.text = "1";
         ammoboxField.text = "1";
 

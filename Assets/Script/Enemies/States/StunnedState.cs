@@ -43,7 +43,7 @@ public class StunnedState : EnemyState
         {
             stunTimer += Time.deltaTime;
             personalityObj.enemyObj.transform.Rotate(Vector3.up, 5.0f);
-            if(stunTimer > 4.0)
+            if(stunTimer > 2.0)
             {
                 stunTimer = 0.0f;
                 isStunned = false;
